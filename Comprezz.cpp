@@ -117,7 +117,6 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
       }
       else
       {
-        //outputs[ch][s] = -DBL_MAX;
         outputs[ch][s] = 0;
       }
     }
@@ -136,14 +135,14 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
     auto detector = &(detectors[ch]);
 
     for (int s = 0; s < nFrames; s++) {
-      outputs[ch][s] = 1-detector->ProcessSample(1-outputs[ch][s]);
+      // Here we have a gain factor between 0dB and -inf, so we need to invert the input to the detector and its output.
+      outputs[ch][s] = 1. - detector->ProcessSample(1. - outputs[ch][s]);
     }
   }
 
   mMeterSender.ProcessBlock(outputs, nFrames, kGain);
 
-
-  // Reduce gain
+  // Apply the gain profile
   for (int ch = 0; ch < nChans; ch++) {
     for (int s = 0; s < nFrames; s++) {
       outputs[ch][s] = inputs[ch][s] * outputs[ch][s];

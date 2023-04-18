@@ -28,14 +28,6 @@ double PeakDetector::ProcessSample(double input)
   const double x = std::abs(input);
 
   const double k = x > lastOutput ? alphaAttack : alphaRelease;
-  //const double k = x > lastInput ? alphaAttack : alphaRelease;
-
-  //const double output = lastOutput + k * (x - lastOutput);
-
-  //lastOutput = output;
-  //lastInput = x;
-
-  //return output;
 
   lastOutput += k * (x - lastOutput);
 
