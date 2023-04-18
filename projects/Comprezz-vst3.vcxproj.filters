@@ -134,6 +134,7 @@
     <ClCompile Include="..\..\..\IGraphics\IGraphicsEditorDelegate.cpp">
       <Filter>IGraphics</Filter>
     </ClCompile>
+    <ClCompile Include="..\Detector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../config.h" />
@@ -357,6 +358,7 @@
     <ClInclude Include="..\..\..\IPlug\ISender.h">
       <Filter>IPlug</Filter>
     </ClInclude>
+    <ClInclude Include="..\Detector.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">
