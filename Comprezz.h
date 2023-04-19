@@ -2,7 +2,7 @@
 
 #include "IPlug_include_in_plug_hdr.h"
 #include "IControls.h"
-#include <Detectors.h>
+#include <../../DspLibs/Detectors.h>
 
 const int kNumPresets = 1;
 

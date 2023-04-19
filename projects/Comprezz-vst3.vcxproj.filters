@@ -134,7 +134,7 @@
     <ClCompile Include="..\..\..\IGraphics\IGraphicsEditorDelegate.cpp">
       <Filter>IGraphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\Detectors.cpp" />
+    <ClCompile Include="..\..\DspLibs\Detectors.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../config.h" />
@@ -358,7 +358,7 @@
     <ClInclude Include="..\..\..\IPlug\ISender.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\Detectors.h" />
+    <ClInclude Include="..\..\DspLibs\Detectors.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">
