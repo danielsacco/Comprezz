@@ -168,7 +168,8 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>$(VST3_DEFS);$(DEBUG_DEFS);$(EXTRA_DEBUG_DEFS);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(VST3_INC_PATHS);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\DspLibs;$(VST3_INC_PATHS);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalBMIDirectories>..\DspLibs;%(AdditionalBMIDirectories)</AdditionalBMIDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -326,6 +327,8 @@
     <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_Parameter.h" />
     <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_ProcessorBase.h" />
     <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_View.h" />
+    <ClInclude Include="..\..\DspLibs\Compressor.h" />
+    <ClInclude Include="..\..\DspLibs\Conversions.h" />
     <ClInclude Include="..\..\DspLibs\Detectors.h" />
     <ClInclude Include="..\Comprezz.h" />
     <ClInclude Include="..\resources\resource.h" />
@@ -389,6 +392,7 @@
     <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp" />
     <ClCompile Include="..\..\..\IPlug\VST3\IPlugVST3.cpp" />
     <ClCompile Include="..\..\..\IPlug\VST3\IPlugVST3_ProcessorBase.cpp" />
+    <ClCompile Include="..\..\DspLibs\Compressor.cpp" />
     <ClCompile Include="..\..\DspLibs\Detectors.cpp" />
     <ClCompile Include="..\Comprezz.cpp" />
   </ItemGroup>

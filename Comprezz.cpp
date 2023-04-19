@@ -11,6 +11,7 @@ Comprezz::Comprezz(const InstanceInfo& info)
   GetParam(kAttack)->InitDouble("Attack", 2., 1., 100., .1, "ms");
   GetParam(kRelease)->InitDouble("Release", 100., 50., 1000., 1., "ms");
 
+
 #if IPLUG_EDITOR // http://bit.ly/2S64BDd
   mMakeGraphicsFunc = [&]() {
     return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
@@ -21,13 +22,15 @@ Comprezz::Comprezz(const InstanceInfo& info)
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     const IRECT fullUI = pGraphics->GetBounds();
 
-    const int columns = 6;
+    const int columns = 8;
     int nextColumn = 0;
     const IRECT ratioColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
     const IRECT thresholdColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
     const IRECT attackColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
     const IRECT releaseColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
-    const IRECT displayColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
+    const IRECT grColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
+    const IRECT scColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
+    const IRECT outColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
     const IRECT gainColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
 
     pGraphics->AttachControl(new IVKnobControl(ratioColumn.GetCentredInside(100), kRatio));
@@ -35,7 +38,9 @@ Comprezz::Comprezz(const InstanceInfo& info)
     pGraphics->AttachControl(new IVKnobControl(attackColumn.GetCentredInside(100), kAttack));
     pGraphics->AttachControl(new IVKnobControl(releaseColumn.GetCentredInside(100), kRelease));
 
-    pGraphics->AttachControl(new IVMeterControl<2>(displayColumn, "Gain Reduction", DEFAULT_STYLE, EDirection::Vertical, { "L", "R" }), kGain);
+    pGraphics->AttachControl(new IVMeterControl<2>(grColumn, "GR", DEFAULT_STYLE, EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log, -72.f, 0.f), kCtrlTagGrMeter);
+    pGraphics->AttachControl(new IVMeterControl<2>{scColumn, "SC Level", DEFAULT_STYLE, EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log }, kCtrlTagScMeter);
+    pGraphics->AttachControl(new IVMeterControl<2>(outColumn, "Out Level", DEFAULT_STYLE, EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log), kCtrlTagOutMeter);
 
     pGraphics->AttachControl(new IVKnobControl(gainColumn.GetCentredInside(100), kGain));
 
@@ -49,18 +54,26 @@ void Comprezz::OnParamChange(int paramIdx)
   {
     case kAttack:
     {
-      for (auto &detector : peakDetectors)
-      {
-        detector.setAttack(GetParam(kAttack)->Value());
-      }
+      for (auto &compressor : compressors)
+        compressor.SetAttack(GetParam(kAttack)->Value());
       break;
     }
     case kRelease:
     {
-      for (auto &detector : peakDetectors)
-      {
-        detector.setRelease(GetParam(kRelease)->Value());
-      }
+      for (auto &compressor : compressors)
+        compressor.SetRelease(GetParam(kRelease)->Value());
+      break;
+    }
+    case kRatio:
+    {
+      for (auto& compressor : compressors)
+        compressor.SetRatio(GetParam(kRatio)->Value());
+      break;
+    }
+    case kThreshold:
+    {
+      for (auto& compressor : compressors)
+        compressor.SetThreshold(GetParam(kThreshold)->Value());
       break;
     }
   }
@@ -68,9 +81,9 @@ void Comprezz::OnParamChange(int paramIdx)
 
 void Comprezz::OnReset()
 {
-  for (auto &detector : peakDetectors)
+  for (auto &compressor : compressors)
   {
-    detector.setSampleRate(GetSampleRate());
+    compressor.SetSampleRate(GetSampleRate());
   }
 }
 
@@ -80,80 +93,61 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   const double gain = GetParam(kGain)->Value() / 100.;
   const int nChans = NOutChansConnected();
 
-  // Create Peak Detectors if needed
-  if (peakDetectors.size() != nChans)
+  // Create compressors if needed (first time or nChans have changed)
+  if (compressors.size() != nChans)
   {
-    peakDetectors.clear();
-    double sampleRate = GetSampleRate();
-    double attack = GetParam(kAttack)->Value();
-    double release = GetParam(kRelease)->Value();
+    compressors.clear();
     for (int i = 0; i < nChans; i++)
     {
-      peakDetectors.push_back(DecoupledPeakDetector(sampleRate, attack, release));
+      compressors.push_back(Compressor(
+        GetParam(kThreshold)->Value(),
+        GetParam(kRatio)->Value(),
+        0.,
+        GetSampleRate(),
+        GetParam(kAttack)->Value(),
+        GetParam(kRelease)->Value()));
     }
   }
 
-
-  // log of input signal
-  for (int ch = 0; ch < nChans; ch++) {
-    for (int s = 0; s < nFrames; s++) {
-      auto logSample = AmpToDB(inputs[ch][s]);
-      outputs[ch][s] = logSample;
-    }
+  // Horrible: Allocate arrays for meters
+  double** grMeter = new double*[nChans];
+  double** scMeter = new double* [nChans];
+  double** outMeter = new double* [nChans];
+  for (int i = 0; i < nChans; i++) {
+    grMeter[i] = new double[nFrames];
+    scMeter[i] = new double[nFrames];
+    outMeter[i] = new double[nFrames];
   }
 
-  // TODO: Pass log signal through gain curve
-  // Here we have the input signal converted to dBs between -infinite and zero (or greater)
-  const double threshold = GetParam(kThreshold)->Value();
-  const double ratio = GetParam(kRatio)->Value();
-  for (int ch = 0; ch < nChans; ch++) {
-    for (int s = 0; s < nFrames; s++) {
-      double sample = outputs[ch][s];
 
-      if (sample > threshold)
-      {
-        double delta = sample - threshold;
-        outputs[ch][s] = - (delta * (1. - 1. / ratio));   // Gain Reduction in dBs
-      }
-      else
-      {
-        outputs[ch][s] = 0;
-      }
-    }
+  // Process signal thru compressors using the input as sidechain
+  for (int i = 0; i < nChans; i++)
+  {
+    (&compressors[i])->ProcessBlock(inputs[i], inputs[i], outputs[i], grMeter[i], scMeter[i], outMeter[i], nFrames);
   }
 
-  // Back to linear for attacking the detector
-  for (int ch = 0; ch < nChans; ch++) {
-    for (int s = 0; s < nFrames; s++) {
-      double linearValue = DBToAmp(outputs[ch][s]);
-      outputs[ch][s] = linearValue;
-    }
+  // TODO Send to meters
+  grMeterSender.ProcessBlock(grMeter, nFrames, kCtrlTagGrMeter);
+  scMeterSender.ProcessBlock(scMeter, nFrames, kCtrlTagScMeter);
+  outMeterSender.ProcessBlock(outMeter, nFrames, kCtrlTagOutMeter);
+
+  // Horrible: Deallocate arrays
+  for (int i = 0; i < nChans; i++) {
+    delete[] grMeter[i];
+    delete[] scMeter[i];
+    delete[] outMeter[i];
   }
-
-  // Attack/Release post gain curve
-  for (int ch = 0; ch < nChans; ch++) {
-    auto detector = &(peakDetectors[ch]);
-
-    for (int s = 0; s < nFrames; s++) {
-      // Here we have a gain factor between 0dB and -inf, so we need to invert the input to the detector and its output.
-      outputs[ch][s] = 1. - detector->ProcessSample(1. - outputs[ch][s]);
-    }
-  }
-
-  mMeterSender.ProcessBlock(outputs, nFrames, kGain);
-
-  // Apply the gain profile
-  for (int ch = 0; ch < nChans; ch++) {
-    for (int s = 0; s < nFrames; s++) {
-      outputs[ch][s] = inputs[ch][s] * outputs[ch][s];
-    }
-  }
+  delete[] grMeter;
+  delete[] scMeter;
+  delete[] outMeter;
 
 }
 
 void Comprezz::OnIdle()
 {
-  mMeterSender.TransmitData(*this);
+  grMeterSender.TransmitData(*this);
+  scMeterSender.TransmitData(*this);
+  outMeterSender.TransmitData(*this);
 }
 
 #endif

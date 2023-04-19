@@ -3,6 +3,7 @@
 #include "IPlug_include_in_plug_hdr.h"
 #include "IControls.h"
 #include <../../DspLibs/Detectors.h>
+#include "../DspLibs/Compressor.h"
 
 const int kNumPresets = 1;
 
@@ -13,7 +14,18 @@ enum EParams
   kThreshold,
   kAttack,
   kRelease,
+  //kGrMeter,
+  //kScMeter,
+  //kOutMeter,
   kNumParams
+};
+
+enum EControlTags
+{
+  kCtrlTagGrMeter = 0,
+  kCtrlTagScMeter,
+  kCtrlTagOutMeter,
+  kCtrlTags
 };
 
 using namespace iplug;
@@ -31,8 +43,11 @@ public:
   void OnIdle() override;
 
 private:
-  IBufferSender<2> mMeterSender;
-  std::vector<DecoupledPeakDetector> peakDetectors;
+  IPeakSender<2> grMeterSender;
+  IPeakSender<2> scMeterSender;
+  IPeakSender<2> outMeterSender;
+
+  std::vector<Compressor> compressors;
 
 #endif
 };
