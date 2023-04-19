@@ -2,7 +2,7 @@
 
 #include "IPlug_include_in_plug_hdr.h"
 #include "IControls.h"
-#include <Detector.h>
+#include <Detectors.h>
 
 const int kNumPresets = 1;
 
@@ -32,7 +32,7 @@ public:
 
 private:
   IBufferSender<2> mMeterSender;
-  std::vector<PeakDetector> detectors;
+  std::vector<DecoupledPeakDetector> peakDetectors;
 
 #endif
 };

@@ -49,7 +49,7 @@ void Comprezz::OnParamChange(int paramIdx)
   {
     case kAttack:
     {
-      for (auto &detector : detectors)
+      for (auto &detector : peakDetectors)
       {
         detector.setAttack(GetParam(kAttack)->Value());
       }
@@ -57,7 +57,7 @@ void Comprezz::OnParamChange(int paramIdx)
     }
     case kRelease:
     {
-      for (auto &detector : detectors)
+      for (auto &detector : peakDetectors)
       {
         detector.setRelease(GetParam(kRelease)->Value());
       }
@@ -68,7 +68,7 @@ void Comprezz::OnParamChange(int paramIdx)
 
 void Comprezz::OnReset()
 {
-  for (auto detector : detectors)
+  for (auto &detector : peakDetectors)
   {
     detector.setSampleRate(GetSampleRate());
   }
@@ -81,15 +81,15 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   const int nChans = NOutChansConnected();
 
   // Create Peak Detectors if needed
-  if (detectors.size() != nChans)
+  if (peakDetectors.size() != nChans)
   {
-    detectors.clear();
+    peakDetectors.clear();
     double sampleRate = GetSampleRate();
     double attack = GetParam(kAttack)->Value();
     double release = GetParam(kRelease)->Value();
     for (int i = 0; i < nChans; i++)
     {
-      detectors.push_back(PeakDetector(sampleRate, attack, release));
+      peakDetectors.push_back(DecoupledPeakDetector(sampleRate, attack, release));
     }
   }
 
@@ -132,7 +132,7 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 
   // Attack/Release post gain curve
   for (int ch = 0; ch < nChans; ch++) {
-    auto detector = &(detectors[ch]);
+    auto detector = &(peakDetectors[ch]);
 
     for (int s = 0; s < nFrames; s++) {
       // Here we have a gain factor between 0dB and -inf, so we need to invert the input to the detector and its output.

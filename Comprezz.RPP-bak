@@ -1,4 +1,4 @@
-<REAPER_PROJECT 0.1 "6.78/win64" 1681818268
+<REAPER_PROJECT 0.1 "6.78/win64" 1681846367
   RIPPLE 0
   GROUPOVERRIDE 0 0 0
   AUTOXFADE 129
@@ -98,7 +98,7 @@
     ISBUS 1 1
     BUSCOMP 0 0 0 0 0
     SHOWINMIX 1 0.6667 0.5 1 0.5 0 0 0
-    SEL 0
+    SEL 1
     REC 0 0 1 0 0 0 0 0
     VU 2
     TRACKHEIGHT 0 0 0 0 0 0
@@ -110,19 +110,23 @@
     MIDIOUT -1
     MAINSEND 1 0
     <FXCHAIN
-      WNDRECT 2856 488 867 513
+      WNDRECT 2896 535 867 513
       SHOW 1
       LASTSEL 0
       DOCKED 0
       BYPASS 0 0 0
       <JS analysis/gfxscope ""
-        2000 0 1 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-      >
-      <JS_PINMAP
-        6AMAABwAAADoAwAAAgAAAAIAAAABAAAAAAAAAAIAAAAAAAAADAAAAOgDAAACAAAAAAAAAA==
+        2000 -12.2 2 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       >
       FLOATPOS 0 0 0 0
       FXID {818C143E-488D-4597-A133-4B898EAC8C3D}
+      WAK 0 0
+      BYPASS 0 0 0
+      <JS analysis/gfxanalyzer ""
+        11 -120 0 2 0 0 1000 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+      >
+      FLOATPOS 0 0 0 0
+      FXID {F6B05E97-857F-4AAA-9881-87C4747E3510}
       WAK 0 0
     >
   >
@@ -150,14 +154,14 @@
     MIDIOUT -1
     MAINSEND 1 0
     <FXCHAIN
-      WNDRECT 2018 553 827 313
+      WNDRECT 2032 516 827 313
       SHOW 1
       LASTSEL 0
       DOCKED 0
       BYPASS 0 0 0
       <VST "VST3: Comprezz (DES)" Comprezz.vst3 0 "" 1999685670{F2AEE70D00DE4F4E00444553434D505A} ""
         Jsgwd+5e7f4CAAAAAQAAAAAAAAACAAAAAAAAAAQAAAABAAAAAAAAAAIAAAAAAAAABAAAAAAAAAAIAAAAAAAAADwAAAABAAAA//8QAA==
-        LAAAAAEAAAAAAAAAAAAAAGH8akykBxFAOrfwqzGRQMAXEKVYtOxEQLpb+NWYoHRAAAAAAAAAAAAAAAAA
+        LAAAAAEAAAAAAAAAAAAAAD67hV+NiQpAWgcqZ7fwNcAAAAAAAABZQAAAAAAAQI9AAAAAAAAAAAAAAAAA
         AAAQAAAA
       >
       FLOATPOS 0 0 0 0
@@ -189,21 +193,21 @@
     MIDIOUT -1
     MAINSEND 1 0
     <FXCHAIN
-      WNDRECT 2852 39 867 513
+      WNDRECT 2896 16 867 513
       SHOW 1
       LASTSEL 0
       DOCKED 0
       BYPASS 0 0 0
       <JS analysis/gfxscope ""
-        1929.280587 0.2 0 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        129.695992 0.2 3 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       >
       FLOATPOS 0 0 0 0
       FXID {5F95E48B-BA6D-4840-B259-FF25A847E989}
       WAK 0 0
     >
   >
-  <TRACK {C66675D1-E37E-4AE5-A0B2-E9CB5376F5C1}
-    NAME "14-Fretless DBX NDC+BSC-220810_1911"
+  <TRACK {B86EDC3B-EB83-47E0-A152-955AA65BF7FE}
+    NAME "Tone Generator"
     PEAKCOL 16576
     BEAT -1
     AUTOMODE 0
@@ -214,7 +218,58 @@
     ISBUS 0 0
     BUSCOMP 0 0 0 0 0
     SHOWINMIX 1 0.6667 0.5 1 0.5 0 0 0
-    SEL 1
+    SEL 0
+    REC 0 0 1 0 0 0 0 0
+    VU 2
+    TRACKHEIGHT 0 0 0 0 0 0
+    INQ 0 0 0 0.5 100 0 0 100
+    NCHAN 2
+    FX 1
+    TRACKID {B86EDC3B-EB83-47E0-A152-955AA65BF7FE}
+    PERF 0
+    MIDIOUT -1
+    MAINSEND 1 0
+    <FXCHAIN
+      WNDRECT 2905 164 716 310
+      SHOW 2
+      LASTSEL 1
+      DOCKED 0
+      BYPASS 1 0 0
+      <JS synthesis/tonegenerator ""
+        -12 -6 440 0 0 0 0 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+      >
+      FLOATPOS 0 0 0 0
+      FXID {5C94B00A-2E47-4096-B5ED-9C184A207661}
+      WAK 0 0
+      BYPASS 1 0 0
+      <JS synthesis/tonegeneratorV2 ""
+        -21 -6 440 0 -2 0 4 52.2 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+      >
+      FLOATPOS 0 0 0 0
+      FXID {9D4A16BF-3F5D-46ED-AA9B-0CC8A91D672D}
+      WAK 0 0
+      BYPASS 1 0 0
+      <JS filters/dc_remove ""
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+      >
+      FLOATPOS 0 0 0 0
+      FXID {7135F472-AD37-44FE-A9B3-1B364B4D9FF0}
+      WAK 0 0
+    >
+  >
+  <TRACK {C66675D1-E37E-4AE5-A0B2-E9CB5376F5C1}
+    NAME "14-Fretless DBX NDC+BSC-220810_1911"
+    PEAKCOL 16576
+    BEAT -1
+    AUTOMODE 0
+    VOLPAN 1 0 -1 -1 1
+    MUTESOLO 1 0 0
+    IPHASE 0
+    PLAYOFFS 0 1
+    ISBUS 0 0
+    BUSCOMP 0 0 0 0 0
+    SHOWINMIX 1 0.6667 0.5 1 0.5 0 0 0
+    SEL 0
     REC 0 0 1 0 0 0 0 0
     VU 2
     TRACKHEIGHT 0 0 0 0 0 0
@@ -254,7 +309,7 @@
     BEAT -1
     AUTOMODE 0
     VOLPAN 1.91622308369501 0 -1 -1 1
-    MUTESOLO 1 0 0
+    MUTESOLO 0 0 0
     IPHASE 0
     PLAYOFFS 0 1
     ISBUS 2 -3
