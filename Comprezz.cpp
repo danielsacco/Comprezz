@@ -1,6 +1,7 @@
 #include "Comprezz.h"
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
+#include <CustomMeter.h>
 
 Comprezz::Comprezz(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPresets))
@@ -18,11 +19,12 @@ Comprezz::Comprezz(const InstanceInfo& info)
   };
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
+    pGraphics->AttachCornerResizer(EUIResizerMode::Scale, false);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     const IRECT fullUI = pGraphics->GetBounds();
 
-    const int columns = 8;
+    const int columns = 9;
     int nextColumn = 0;
     const IRECT ratioColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
     const IRECT thresholdColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
@@ -32,6 +34,7 @@ Comprezz::Comprezz(const InstanceInfo& info)
     const IRECT scColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
     const IRECT outColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
     const IRECT gainColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
+    const IRECT inOutColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
 
     pGraphics->AttachControl(new IVKnobControl(ratioColumn.GetCentredInside(100), kRatio));
     pGraphics->AttachControl(new IVKnobControl(thresholdColumn.GetCentredInside(100), kThreshold));
@@ -40,7 +43,9 @@ Comprezz::Comprezz(const InstanceInfo& info)
 
     pGraphics->AttachControl(new IVMeterControl<2>(grColumn, "GR", DEFAULT_STYLE, EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log, -72.f, 0.f), kCtrlTagGrMeter);
     pGraphics->AttachControl(new IVMeterControl<2>{scColumn, "SC Level", DEFAULT_STYLE, EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log }, kCtrlTagScMeter);
-    pGraphics->AttachControl(new IVMeterControl<2>(outColumn, "Out Level", DEFAULT_STYLE, EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log), kCtrlTagOutMeter);
+    //pGraphics->AttachControl(new IVMeterControl<2>(outColumn, "Out Level", DEFAULT_STYLE, EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log), kCtrlTagOutMeter);
+
+    pGraphics->AttachControl(new IVInOutMeterControl<2>(inOutColumn, "In/Out", DEFAULT_STYLE, EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log), kCtrlTagOutMeter);
 
     pGraphics->AttachControl(new IVKnobControl(gainColumn.GetCentredInside(100), kGain));
 
