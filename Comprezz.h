@@ -14,9 +14,6 @@ enum EParams
   kThreshold,
   kAttack,
   kRelease,
-  //kGrMeter,
-  //kScMeter,
-  //kOutMeter,
   kNumParams
 };
 
