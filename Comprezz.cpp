@@ -116,6 +116,31 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
     }
   }
 
+  // Create detectors if needed (first time or nChans have changed)
+  if (scDetectors.size() != nChans)
+  {
+    scDetectors.clear();
+    for (int i = 0; i < nChans; i++)
+    {
+      scDetectors.push_back(DecoupledPeakDetector(
+        GetSampleRate(),
+        GetParam(kAttack)->Value(),
+        GetParam(kRelease)->Value()));
+    }
+  }
+
+  if (outDetectors.size() != nChans)
+  {
+    outDetectors.clear();
+    for (int i = 0; i < nChans; i++)
+    {
+      outDetectors.push_back(DecoupledPeakDetector(
+        GetSampleRate(),
+        GetParam(kAttack)->Value(),
+        GetParam(kRelease)->Value()));
+    }
+  }
+
   // Horrible: Allocate arrays for meters
   double** grMeter = new double*[nChans];
   double** scMeter = new double* [nChans];
@@ -130,10 +155,23 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   // Process signal thru compressors using the input as sidechain
   for (int i = 0; i < nChans; i++)
   {
-    (&compressors[i])->ProcessBlock(inputs[i], inputs[i], outputs[i], grMeter[i], scMeter[i], outMeter[i], nFrames);
+    (&compressors[i])->ProcessBlock(inputs[i], inputs[i], outputs[i], grMeter[i], nFrames);
   }
 
-  // TODO Send to meters
+
+  // Fill sc and out meters
+  for (int i = 0; i < nChans; i++)
+  {
+    auto scDetector = &(scDetectors[i]);
+    auto outDetector = &(outDetectors[i]);
+    for (int s = 0; s < nFrames; s++) {
+      scMeter[i][s] = scDetector->ProcessSample(inputs[i][s]);
+      outMeter[i][s] = outDetector->ProcessSample(outputs[i][s]);
+    }
+  }
+  
+
+  // Send data to meters
   grMeterSender.ProcessBlock(grMeter, nFrames, kCtrlTagGrMeter);
   scMeterSender.ProcessBlock(scMeter, nFrames, kCtrlTagScMeter);
   outMeterSender.ProcessBlock(outMeter, nFrames, kCtrlTagOutMeter);

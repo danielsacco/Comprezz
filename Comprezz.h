@@ -46,5 +46,8 @@ private:
 
   std::vector<Compressor> compressors;
 
+  std::vector<DecoupledPeakDetector> scDetectors;
+  std::vector<DecoupledPeakDetector> outDetectors;
+
 #endif
 };
