@@ -6,13 +6,13 @@ Requires code from https://github.com/danielsacco/DspLibs
 
 # TODO GUI
 - GUI Design
-- Show input RMS against gain reduction and threshold
 - Create Presets
 - Stereo link
+- Values: Manual input
+- Look ahead on/off
 
 
 # TODO DSP
-- Extract Compressor logic to a separate class so it can be reused
-- In/SC level and Out level should be calculated outside the compressor so we can use separate ballistics.
+- Look ahead
 - Stereo link
 

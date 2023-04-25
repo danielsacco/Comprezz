@@ -5,11 +5,12 @@
 Comprezz::Comprezz(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
-  GetParam(kGain)->InitDouble("Gain", 0., 0., 100.0, 0.01, "%");
+  GetParam(kGain)->InitGain("Gain", 0., -3., 12., .5);
   GetParam(kRatio)->InitDouble("Ratio", 2., 1., 10., .1);
   GetParam(kThreshold)->InitDouble("Threshold", -30., -60., 0., .1, "dB");
-  GetParam(kAttack)->InitDouble("Attack", 2., 1., 100., .1, "ms");
+  GetParam(kAttack)->InitDouble("Attack", 10., 1., 100., .1, "ms");
   GetParam(kRelease)->InitDouble("Release", 100., 50., 1000., 1., "ms");
+  GetParam(kStereoLink)->InitBool("Link", false);
 
 
 #if IPLUG_EDITOR // http://bit.ly/2S64BDd
@@ -19,7 +20,7 @@ Comprezz::Comprezz(const InstanceInfo& info)
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, false);
-    pGraphics->AttachPanelBackground(COLOR_GRAY);
+    pGraphics->AttachPanelBackground(COLOR_MID_GRAY);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     const IRECT fullUI = pGraphics->GetBounds();
 
@@ -34,7 +35,7 @@ Comprezz::Comprezz(const InstanceInfo& info)
     const IRECT scColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
     const IRECT outColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
     const IRECT gainColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
-    const IRECT inOutColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
+    const IRECT stereoLinkColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
 
     pGraphics->AttachControl(new IVKnobControl(ratioColumn.GetCentredInside(100), kRatio));
     pGraphics->AttachControl(new IVKnobControl(thresholdColumn.GetCentredInside(100), kThreshold));
@@ -47,6 +48,8 @@ Comprezz::Comprezz(const InstanceInfo& info)
 
     pGraphics->AttachControl(new IVKnobControl(gainColumn.GetCentredInside(100), kGain));
 
+    pGraphics->AttachControl(new IVToggleControl(stereoLinkColumn.GetCentredInside(50), kStereoLink));
+
   };
 #endif
 }
@@ -55,7 +58,12 @@ void Comprezz::OnParamChange(int paramIdx)
 {
   switch (paramIdx)
   {
-    case kAttack:
+  case kGain:
+  {
+    linearGain = DBToAmp(GetParam(kGain)->Value());
+    break;
+  }
+  case kAttack:
     {
       for (auto &compressor : compressors)
         compressor.SetAttack(GetParam(kAttack)->Value());
@@ -93,7 +101,6 @@ void Comprezz::OnReset()
 #if IPLUG_DSP
 void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
-  const double gain = GetParam(kGain)->Value() / 100.;
   const int nChans = NOutChansConnected();
 
   // Create compressors if needed (first time or nChans have changed)
@@ -147,13 +154,35 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
     outMeter[i] = new double[nFrames];
   }
 
+  double* sidechain = nullptr;
 
-  // Process signal thru compressors using the input as sidechain
-  for (int i = 0; i < nChans; i++)
+  if (GetParam(kStereoLink)->Bool() && nChans > 1)
   {
-    (&compressors[i])->ProcessBlock(inputs[i], inputs[i], outputs[i], vcaMeter[i], nFrames);
+    // Prepare channels average as sidechain
+    sidechain = new double [nFrames];
+
+    for (int s = 0; s < nFrames; s++)
+    {
+      sample average = 0.;
+      for (int i = 0; i < nChans; i++)
+      {
+        average += std::abs(inputs[i][s]);
+      }
+      sidechain[s] = average / nChans;
+    }
   }
 
+  // Process signal thru compressors
+  for (int i = 0; i < nChans; i++)
+  {
+    (&compressors[i])->ProcessBlock(inputs[i], sidechain, outputs[i], vcaMeter[i], nFrames);
+
+    // Apply output gain
+    for (int s = 0; s < nFrames; s++)
+    {
+      outputs[i][s] = outputs[i][s] * linearGain;
+    }
+  }
 
   // Fill sc and out meters
   for (int i = 0; i < nChans; i++)
@@ -183,6 +212,10 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   delete[] scMeter;
   delete[] outMeter;
 
+  if (sidechain)
+  {
+    delete[] sidechain;
+  }
 }
 
 void Comprezz::OnIdle()

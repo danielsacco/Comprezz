@@ -15,6 +15,7 @@ enum EParams
   kThreshold,
   kAttack,
   kRelease,
+  kStereoLink,
   kNumParams
 };
 
@@ -41,6 +42,8 @@ public:
   void OnIdle() override;
 
 private:
+  double linearGain = 0.;
+
   IPeakSender<2> grMeterSender;
   IPeakSender<2> scMeterSender;
   IPeakSender<2> outMeterSender;

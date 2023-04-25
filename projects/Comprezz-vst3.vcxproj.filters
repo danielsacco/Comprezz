@@ -441,5 +441,6 @@
     <None Include="..\config\Comprezz-mac.xcconfig">
       <Filter>config</Filter>
     </None>
+    <None Include="..\README.md" />
   </ItemGroup>
 </Project>

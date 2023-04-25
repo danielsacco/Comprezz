@@ -407,6 +407,7 @@
     <None Include="..\config\Comprezz-win.props">
       <SubType>Designer</SubType>
     </None>
+    <None Include="..\README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
