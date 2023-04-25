@@ -1,4 +1,4 @@
-<REAPER_PROJECT 0.1 "6.78/win64" 1681929377
+<REAPER_PROJECT 0.1 "6.78/win64" 1682434924
   RIPPLE 0
   GROUPOVERRIDE 0 0 0
   AUTOXFADE 129
@@ -15,7 +15,7 @@
   VIDEO_CONFIG 0 0 256
   PANMODE 3
   CURSOR 9.5
-  ZOOM 35.85960413809067 0 0
+  ZOOM 50.47430263272119 0 0
   VZOOMEX 5.30684948 0
   USE_REC_CFG 0
   RECMODE 1
@@ -65,7 +65,7 @@
   MASTERTRACKVIEW 0 0.6667 0.5 0.5 0 0 0 0 0 0 0 0 0
   MASTERHWOUT 0 0 1 0 0 0 0 -1
   MASTER_NCH 2 2
-  MASTER_VOLUME 1 0 -1 -1 1
+  MASTER_VOLUME 2.25914538654539 0 -1 -1 1
   MASTER_FX 1
   MASTER_SEL 0
   <MASTERPLAYSPEEDENV
@@ -116,7 +116,7 @@
       DOCKED 0
       BYPASS 0 0 0
       <JS analysis/gfxscope ""
-        2000 -12.2 2 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        2000 0 2 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       >
       FLOATPOS 0 0 0 0
       FXID {818C143E-488D-4597-A133-4B898EAC8C3D}
@@ -154,18 +154,18 @@
     MIDIOUT -1
     MAINSEND 1 0
     <FXCHAIN
-      WNDRECT 2343 349 827 313
+      WNDRECT 2278 259 827 313
       SHOW 1
       LASTSEL 0
       DOCKED 0
       BYPASS 0 0 0
       <VST "VST3: Comprezz (DES)" Comprezz.vst3 0 "" 1999685670{F2AEE70D00DE4F4E00444553434D505A} ""
         Jsgwd+5e7f4CAAAAAQAAAAAAAAACAAAAAAAAAAQAAAABAAAAAAAAAAIAAAAAAAAABAAAAAAAAAAIAAAAAAAAADwAAAABAAAA//8QAA==
-        LAAAAAEAAAAAAAAAAAAAACKCytkt/BNAGb8aE+kBQMBhIj1QObsjQCV+NSbSC31AAAAAAAAAAAAAAAAA
+        LAAAAAEAAAAAAAAAAAAAAD1QObuFX/U/U/CrMZEeP8AAAAAAAAAAQAAAAAAAAFlAAAAAAAAAAAAAAAAA
         AAAQAAAA
       >
       FLOATPOS 0 0 0 0
-      FXID {6660D196-FEE8-4D83-9818-A27976C3DB00}
+      FXID {C354D0E5-1E10-49E5-B58F-0AF8E34B8BE6}
       WAK 0 0
     >
   >
@@ -174,7 +174,7 @@
     PEAKCOL 16576
     BEAT -1
     AUTOMODE 0
-    VOLPAN 1 0 -1 -1 1
+    VOLPAN 3.98107170553497 0 -1 -1 1
     MUTESOLO 0 0 0
     IPHASE 0
     PLAYOFFS 0 1
@@ -230,11 +230,11 @@
     MIDIOUT -1
     MAINSEND 1 0
     <FXCHAIN
-      WNDRECT 2613 154 716 310
+      WNDRECT 2253 295 716 290
       SHOW 0
-      LASTSEL 1
+      LASTSEL 0
       DOCKED 0
-      BYPASS 1 0 0
+      BYPASS 0 0 0
       <JS synthesis/tonegenerator ""
         -12 -6 440 0 0 0 0 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       >
@@ -243,7 +243,7 @@
       WAK 0 0
       BYPASS 1 0 0
       <JS synthesis/tonegeneratorV2 ""
-        -21 -6 440 0 -2 0 4 52.2 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        -12 -6 440 0 -2 0 4 52.2 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       >
       FLOATPOS 0 0 0 0
       FXID {9D4A16BF-3F5D-46ED-AA9B-0CC8A91D672D}
@@ -262,7 +262,7 @@
     PEAKCOL 16576
     BEAT -1
     AUTOMODE 0
-    VOLPAN 1 -1 -1 -1 1
+    VOLPAN 2.4970885828987 -1 -1 -1 1
     MUTESOLO 0 0 0
     IPHASE 0
     PLAYOFFS 0 1
@@ -308,7 +308,7 @@
     PEAKCOL 16576
     BEAT -1
     AUTOMODE 0
-    VOLPAN 1.91622308369501 1 -1 -1 1
+    VOLPAN 1 1 -1 -1 1
     MUTESOLO 0 0 0
     IPHASE 0
     PLAYOFFS 0 1

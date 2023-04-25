@@ -18,11 +18,13 @@ Comprezz::Comprezz(const InstanceInfo& info)
   };
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
+    pGraphics->AttachCornerResizer(EUIResizerMode::Scale, false);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     const IRECT fullUI = pGraphics->GetBounds();
 
-    const int columns = 8;
+    // TODO Improve this section !!!
+    const int columns = 9;
     int nextColumn = 0;
     const IRECT ratioColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
     const IRECT thresholdColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
@@ -32,15 +34,16 @@ Comprezz::Comprezz(const InstanceInfo& info)
     const IRECT scColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
     const IRECT outColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
     const IRECT gainColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
+    const IRECT inOutColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
 
     pGraphics->AttachControl(new IVKnobControl(ratioColumn.GetCentredInside(100), kRatio));
     pGraphics->AttachControl(new IVKnobControl(thresholdColumn.GetCentredInside(100), kThreshold));
     pGraphics->AttachControl(new IVKnobControl(attackColumn.GetCentredInside(100), kAttack));
     pGraphics->AttachControl(new IVKnobControl(releaseColumn.GetCentredInside(100), kRelease));
 
-    pGraphics->AttachControl(new IVMeterControl<2>(grColumn, "GR", DEFAULT_STYLE, EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log, -72.f, 0.f), kCtrlTagGrMeter);
-    pGraphics->AttachControl(new IVMeterControl<2>{scColumn, "SC Level", DEFAULT_STYLE, EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log }, kCtrlTagScMeter);
-    pGraphics->AttachControl(new IVMeterControl<2>(outColumn, "Out Level", DEFAULT_STYLE, EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log), kCtrlTagOutMeter);
+    pGraphics->AttachControl(new IVInvertedPatternMeterControl<2>(grColumn, "GR", DEFAULT_STYLE.WithColor(kX2, COLOR_GREEN).WithColor(kX3, COLOR_RED), EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log, -72.f, 0.f), kCtrlTagGrMeter);
+    pGraphics->AttachControl(new IVPatternMeterControl<2>{scColumn, "SC Level", DEFAULT_STYLE.WithColor(kX2, COLOR_GREEN).WithColor(kX3, COLOR_RED), EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log }, kCtrlTagScMeter);
+    pGraphics->AttachControl(new IVPatternMeterControl<2>(outColumn, "Out Level", DEFAULT_STYLE.WithColor(kX2, COLOR_GREEN).WithColor(kX3, COLOR_RED), EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log), kCtrlTagOutMeter);
 
     pGraphics->AttachControl(new IVKnobControl(gainColumn.GetCentredInside(100), kGain));
 
@@ -109,12 +112,37 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
     }
   }
 
+  // Create detectors if needed (first time or nChans have changed)
+  if (scDetectors.size() != nChans)
+  {
+    scDetectors.clear();
+    for (int i = 0; i < nChans; i++)
+    {
+      scDetectors.push_back(DecoupledPeakDetector(
+        GetSampleRate(),
+        GetParam(kAttack)->Value(),
+        GetParam(kRelease)->Value()));
+    }
+  }
+
+  if (outDetectors.size() != nChans)
+  {
+    outDetectors.clear();
+    for (int i = 0; i < nChans; i++)
+    {
+      outDetectors.push_back(DecoupledPeakDetector(
+        GetSampleRate(),
+        GetParam(kAttack)->Value(),
+        GetParam(kRelease)->Value()));
+    }
+  }
+
   // Horrible: Allocate arrays for meters
-  double** grMeter = new double*[nChans];
+  double** vcaMeter = new double*[nChans];
   double** scMeter = new double* [nChans];
   double** outMeter = new double* [nChans];
   for (int i = 0; i < nChans; i++) {
-    grMeter[i] = new double[nFrames];
+    vcaMeter[i] = new double[nFrames];
     scMeter[i] = new double[nFrames];
     outMeter[i] = new double[nFrames];
   }
@@ -123,21 +151,35 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   // Process signal thru compressors using the input as sidechain
   for (int i = 0; i < nChans; i++)
   {
-    (&compressors[i])->ProcessBlock(inputs[i], inputs[i], outputs[i], grMeter[i], scMeter[i], outMeter[i], nFrames);
+    (&compressors[i])->ProcessBlock(inputs[i], inputs[i], outputs[i], vcaMeter[i], nFrames);
   }
 
-  // TODO Send to meters
-  grMeterSender.ProcessBlock(grMeter, nFrames, kCtrlTagGrMeter);
+
+  // Fill sc and out meters
+  for (int i = 0; i < nChans; i++)
+  {
+    auto scDetector = &(scDetectors[i]);
+    auto outDetector = &(outDetectors[i]);
+    for (int s = 0; s < nFrames; s++) {
+      scMeter[i][s] = scDetector->ProcessSample(inputs[i][s]);
+      outMeter[i][s] = outDetector->ProcessSample(outputs[i][s]);
+    }
+  }
+
+
+
+  // Send data to meters
+  grMeterSender.ProcessBlock(vcaMeter, nFrames, kCtrlTagGrMeter);
   scMeterSender.ProcessBlock(scMeter, nFrames, kCtrlTagScMeter);
   outMeterSender.ProcessBlock(outMeter, nFrames, kCtrlTagOutMeter);
 
   // Horrible: Deallocate arrays
   for (int i = 0; i < nChans; i++) {
-    delete[] grMeter[i];
+    delete[] vcaMeter[i];
     delete[] scMeter[i];
     delete[] outMeter[i];
   }
-  delete[] grMeter;
+  delete[] vcaMeter;
   delete[] scMeter;
   delete[] outMeter;
 

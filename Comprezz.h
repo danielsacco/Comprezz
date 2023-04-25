@@ -4,6 +4,7 @@
 #include "IControls.h"
 #include <../../DspLibs/Detectors.h>
 #include "../DspLibs/Compressor.h"
+#include "PatternMeter.h"
 
 const int kNumPresets = 1;
 
@@ -45,6 +46,9 @@ private:
   IPeakSender<2> outMeterSender;
 
   std::vector<Compressor> compressors;
+
+  std::vector<DecoupledPeakDetector> scDetectors;
+  std::vector<DecoupledPeakDetector> outDetectors;
 
 #endif
 };

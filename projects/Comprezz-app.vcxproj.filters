@@ -263,6 +263,7 @@
     <ClInclude Include="..\..\DspLibs\Detectors.h" />
     <ClInclude Include="..\..\DspLibs\Compressor.h" />
     <ClInclude Include="..\..\DspLibs\Conversions.h" />
+    <ClInclude Include="..\PatternMeter.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">
