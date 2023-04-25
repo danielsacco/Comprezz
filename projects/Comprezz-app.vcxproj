@@ -321,7 +321,7 @@
     <ClInclude Include="..\..\DspLibs\Conversions.h" />
     <ClInclude Include="..\..\DspLibs\Detectors.h" />
     <ClInclude Include="..\Comprezz.h" />
-    <ClInclude Include="..\CustomMeter.h" />
+    <ClInclude Include="..\PatternMeter.h" />
     <ClInclude Include="..\resources\resource.h" />
   </ItemGroup>
   <ItemGroup>

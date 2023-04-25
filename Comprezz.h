@@ -4,6 +4,7 @@
 #include "IControls.h"
 #include <../../DspLibs/Detectors.h>
 #include "../DspLibs/Compressor.h"
+#include "PatternMeter.h"
 
 const int kNumPresets = 1;
 

@@ -1,7 +1,6 @@
 #include "Comprezz.h"
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
-#include <CustomMeter.h>
 
 Comprezz::Comprezz(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPresets))
@@ -24,6 +23,7 @@ Comprezz::Comprezz(const InstanceInfo& info)
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     const IRECT fullUI = pGraphics->GetBounds();
 
+    // TODO Improve this section !!!
     const int columns = 9;
     int nextColumn = 0;
     const IRECT ratioColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
@@ -41,13 +41,9 @@ Comprezz::Comprezz(const InstanceInfo& info)
     pGraphics->AttachControl(new IVKnobControl(attackColumn.GetCentredInside(100), kAttack));
     pGraphics->AttachControl(new IVKnobControl(releaseColumn.GetCentredInside(100), kRelease));
 
-    pGraphics->AttachControl(new IVMeterControl<2>(grColumn, "GR", DEFAULT_STYLE, EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log, -72.f, 0.f), kCtrlTagGrMeter);
-    pGraphics->AttachControl(new IVMeterControl<2>{scColumn, "SC Level", DEFAULT_STYLE, EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log }, kCtrlTagScMeter);
-    //pGraphics->AttachControl(new IVMeterControl<2>(outColumn, "Out Level", DEFAULT_STYLE, EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log), kCtrlTagOutMeter);
-
-    pGraphics->AttachControl(new IVMixedMeterControl<2>(inOutColumn, "In/Out",
-      DEFAULT_STYLE.WithColor(kX2, COLOR_GREEN).WithColor(kX3, COLOR_RED),
-      EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log), kCtrlTagOutMeter);
+    pGraphics->AttachControl(new IVInvertedPatternMeterControl<2>(grColumn, "GR", DEFAULT_STYLE.WithColor(kX2, COLOR_GREEN).WithColor(kX3, COLOR_RED), EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log, -72.f, 0.f), kCtrlTagGrMeter);
+    pGraphics->AttachControl(new IVPatternMeterControl<2>{scColumn, "SC Level", DEFAULT_STYLE.WithColor(kX2, COLOR_GREEN).WithColor(kX3, COLOR_RED), EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log }, kCtrlTagScMeter);
+    pGraphics->AttachControl(new IVPatternMeterControl<2>(outColumn, "Out Level", DEFAULT_STYLE.WithColor(kX2, COLOR_GREEN).WithColor(kX3, COLOR_RED), EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log), kCtrlTagOutMeter);
 
     pGraphics->AttachControl(new IVKnobControl(gainColumn.GetCentredInside(100), kGain));
 
@@ -142,11 +138,11 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   }
 
   // Horrible: Allocate arrays for meters
-  double** grMeter = new double*[nChans];
+  double** vcaMeter = new double*[nChans];
   double** scMeter = new double* [nChans];
   double** outMeter = new double* [nChans];
   for (int i = 0; i < nChans; i++) {
-    grMeter[i] = new double[nFrames];
+    vcaMeter[i] = new double[nFrames];
     scMeter[i] = new double[nFrames];
     outMeter[i] = new double[nFrames];
   }
@@ -155,7 +151,7 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   // Process signal thru compressors using the input as sidechain
   for (int i = 0; i < nChans; i++)
   {
-    (&compressors[i])->ProcessBlock(inputs[i], inputs[i], outputs[i], grMeter[i], nFrames);
+    (&compressors[i])->ProcessBlock(inputs[i], inputs[i], outputs[i], vcaMeter[i], nFrames);
   }
 
 
@@ -169,20 +165,21 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
       outMeter[i][s] = outDetector->ProcessSample(outputs[i][s]);
     }
   }
-  
+
+
 
   // Send data to meters
-  grMeterSender.ProcessBlock(grMeter, nFrames, kCtrlTagGrMeter);
+  grMeterSender.ProcessBlock(vcaMeter, nFrames, kCtrlTagGrMeter);
   scMeterSender.ProcessBlock(scMeter, nFrames, kCtrlTagScMeter);
   outMeterSender.ProcessBlock(outMeter, nFrames, kCtrlTagOutMeter);
 
   // Horrible: Deallocate arrays
   for (int i = 0; i < nChans; i++) {
-    delete[] grMeter[i];
+    delete[] vcaMeter[i];
     delete[] scMeter[i];
     delete[] outMeter[i];
   }
-  delete[] grMeter;
+  delete[] vcaMeter;
   delete[] scMeter;
   delete[] outMeter;
 
