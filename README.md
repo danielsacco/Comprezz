@@ -7,12 +7,10 @@ Requires code from https://github.com/danielsacco/DspLibs
 # TODO GUI
 - GUI Design
 - Create Presets
-- Stereo link
-- Values: Manual input
 - Look ahead on/off
+- Soft Knee
 
 
 # TODO DSP
 - Look ahead
-- Stereo link
-
+- Soft Knee

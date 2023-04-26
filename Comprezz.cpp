@@ -6,49 +6,91 @@ Comprezz::Comprezz(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kGain)->InitGain("Gain", 0., -3., 12., .5);
-  GetParam(kRatio)->InitDouble("Ratio", 2., 1., 10., .1);
+  GetParam(kRatio)->InitDouble("Ratio", 1.3, 1., 8., .1);
   GetParam(kThreshold)->InitDouble("Threshold", -30., -60., 0., .1, "dB");
   GetParam(kAttack)->InitDouble("Attack", 10., 1., 100., .1, "ms");
   GetParam(kRelease)->InitDouble("Release", 100., 50., 1000., 1., "ms");
-  GetParam(kStereoLink)->InitBool("Link", false);
-
+  GetParam(kStereoLink)->InitBool("Link Channels", false);
 
 #if IPLUG_EDITOR // http://bit.ly/2S64BDd
   mMakeGraphicsFunc = [&]() {
     return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
   };
-  
+
   mLayoutFunc = [&](IGraphics* pGraphics) {
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, false);
     pGraphics->AttachPanelBackground(COLOR_MID_GRAY);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
+    pGraphics->LoadFont("ForkAwesome", FORK_AWESOME_FN);
+
+    pGraphics->EnableTooltips(true);
+    pGraphics->EnableMouseOver(true);
+
+    const float HEADER_HEIGHT = 30.f;
+    const float FOOTER_HEIGHT = 10.f;
+    const float AVAILABLE_HEIGHT = PLUG_HEIGHT - (HEADER_HEIGHT + FOOTER_HEIGHT);
+    const float BOTOM_CONTROLS_HEIGHT = 30.f;
+
+    const float CONTROLS_HEIGHT = AVAILABLE_HEIGHT - BOTOM_CONTROLS_HEIGHT;
+    const float CONTROLS_WIDTH = 50.f;
+    const float METERS_WIDTH = 40.f;
+    const IRECT CONTROLS_SIZE = IRECT(0.f, 0.f, CONTROLS_WIDTH, CONTROLS_HEIGHT);
+    const IRECT METERS_SIZE = IRECT(0.f, 0.f, METERS_WIDTH, CONTROLS_HEIGHT);
+
+    const IColor METER_FRAME_COLOR = IColor::LinearInterpolateBetween(COLOR_LIGHT_GRAY, COLOR_MID_GRAY, .5f);
+
+    const IText LABEL_TEXT = DEFAULT_TEXT.WithSize(14.f);
+    const IVStyle CUSTOM_STYLE = DEFAULT_STYLE.WithLabelText(LABEL_TEXT);
+    const IVStyle METERS_STYLE = CUSTOM_STYLE
+      .WithColor(kBG, COLOR_RED)            // Not used
+      .WithColor(kFG, COLOR_BLUE)
+      .WithColor(kPR, COLOR_VIOLET)
+      .WithColor(kFR, METER_FRAME_COLOR)    // Frame
+      .WithColor(kHL, METER_FRAME_COLOR)    // dB Markers
+      .WithColor(kSH, COLOR_YELLOW)
+      .WithColor(kX1, COLOR_INDIGO)
+      .WithColor(kX2, COLOR_GREEN)          // Track Pattern main color
+      .WithColor(kX3, COLOR_RED)            // Track Pattern danger color
+      ;
+
     const IRECT fullUI = pGraphics->GetBounds();
+    const IRECT header = fullUI.GetFromTop(HEADER_HEIGHT);
+    const IRECT mainControls = fullUI.GetFromTop(CONTROLS_HEIGHT).GetVShifted(HEADER_HEIGHT);
+    const IRECT bottomControls = fullUI.GetFromBottom(BOTOM_CONTROLS_HEIGHT).GetVShifted(-FOOTER_HEIGHT);
+
+    pGraphics->AttachControl(new ITextControl(header, "Just Another Basic Digital Compressor", DEFAULT_TEXT.WithSize(20.f)));
 
     // TODO Improve this section !!!
     const int columns = 9;
     int nextColumn = 0;
-    const IRECT ratioColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
-    const IRECT thresholdColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
-    const IRECT attackColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
-    const IRECT releaseColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
-    const IRECT grColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
-    const IRECT scColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
-    const IRECT outColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
-    const IRECT gainColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
-    const IRECT stereoLinkColumn = fullUI.GetGridCell(0, nextColumn++, 1, columns);
+    const IRECT ratioColumn = mainControls.GetGridCell(0, nextColumn++, 1, columns);
+    const IRECT thresholdColumn = mainControls.GetGridCell(0, nextColumn++, 1, columns);
+    const IRECT scColumn = mainControls.GetGridCell(0, nextColumn++, 1, columns);
+    const IRECT attackColumn = mainControls.GetGridCell(0, nextColumn++, 1, columns);
+    const IRECT releaseColumn = mainControls.GetGridCell(0, nextColumn++, 1, columns);
+    const IRECT grColumn = mainControls.GetGridCell(0, nextColumn++, 1, columns);
+    const IRECT gainColumn = mainControls.GetGridCell(0, nextColumn++, 1, columns);
+    const IRECT outColumn = mainControls.GetGridCell(0, nextColumn++, 1, columns);
 
-    pGraphics->AttachControl(new IVKnobControl(ratioColumn.GetCentredInside(100), kRatio));
-    pGraphics->AttachControl(new IVKnobControl(thresholdColumn.GetCentredInside(100), kThreshold));
-    pGraphics->AttachControl(new IVKnobControl(attackColumn.GetCentredInside(100), kAttack));
-    pGraphics->AttachControl(new IVKnobControl(releaseColumn.GetCentredInside(100), kRelease));
+    pGraphics->AttachControl(new IVSliderControl(ratioColumn.GetCentredInside(CONTROLS_SIZE), kRatio, "Ratio", CUSTOM_STYLE, true));
+    pGraphics->AttachControl(new IVSliderControl(thresholdColumn.GetCentredInside(CONTROLS_SIZE), kThreshold, "Thr", CUSTOM_STYLE, true));
+    pGraphics->AttachControl(new IVSliderControl(attackColumn.GetCentredInside(CONTROLS_SIZE), kAttack, "Attack", CUSTOM_STYLE, true));
+    pGraphics->AttachControl(new IVSliderControl(releaseColumn.GetCentredInside(CONTROLS_SIZE), kRelease, "Release", CUSTOM_STYLE, true));
 
-    pGraphics->AttachControl(new IVInvertedPatternMeterControl<2>(grColumn, "GR", DEFAULT_STYLE.WithColor(kX2, COLOR_GREEN).WithColor(kX3, COLOR_RED), EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log, -72.f, 0.f), kCtrlTagGrMeter);
-    pGraphics->AttachControl(new IVPatternMeterControl<2>{scColumn, "SC Level", DEFAULT_STYLE.WithColor(kX2, COLOR_GREEN).WithColor(kX3, COLOR_RED), EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log }, kCtrlTagScMeter);
-    pGraphics->AttachControl(new IVPatternMeterControl<2>(outColumn, "Out Level", DEFAULT_STYLE.WithColor(kX2, COLOR_GREEN).WithColor(kX3, COLOR_RED), EDirection::Vertical, { "L", "R" }, 0, IVMeterControl<2>::EResponse::Log), kCtrlTagOutMeter);
+    pGraphics->AttachControl(new IVInvertedPatternMeterControl<2>(grColumn.GetCentredInside(METERS_SIZE), "GR", METERS_STYLE, EDirection::Vertical, {}, 0, IVMeterControl<2>::EResponse::Log, -72.f, 0.f), kCtrlTagGrMeter);
+    pGraphics->AttachControl(new IVPatternMeterControl<2>{scColumn.GetCentredInside(METERS_SIZE), "In/SC", METERS_STYLE, EDirection::Vertical, {}, 0, IVMeterControl<2>::EResponse::Log }, kCtrlTagScMeter);
+    pGraphics->AttachControl(new IVPatternMeterControl<2>(outColumn.GetCentredInside(METERS_SIZE), "Out", METERS_STYLE, EDirection::Vertical, {}, 0, IVMeterControl<2>::EResponse::Log), kCtrlTagOutMeter);
 
-    pGraphics->AttachControl(new IVKnobControl(gainColumn.GetCentredInside(100), kGain));
+    pGraphics->AttachControl(new IVSliderControl(gainColumn.GetCentredInside(CONTROLS_SIZE), kGain, "Make Up", CUSTOM_STYLE, true));
 
-    pGraphics->AttachControl(new IVToggleControl(stereoLinkColumn.GetCentredInside(50), kStereoLink));
+    const IVStyle LINK_CHANNELS_STYLE = DEFAULT_STYLE.WithLabelText(LABEL_TEXT.WithAlign(EAlign::Near).WithVAlign(EVAlign::Middle));
+    const IText forkAwesomeText{ 16.f, "ForkAwesome" };
+
+    const IRECT linkCheckbox = bottomControls.SubRectHorizontal(columns, 0).GetHAlignedTo(grColumn, EAlign::Center).GetCentredInside(25.f);
+    pGraphics->AttachControl(new ITextToggleControl(linkCheckbox, kStereoLink, u8"\uf096", u8"\uf14a", forkAwesomeText));
+
+    const IRECT linkLabel = IRECT(linkCheckbox.L - 80.f, bottomControls.T, linkCheckbox.L, bottomControls.B);
+    pGraphics->AttachControl(new ITextControl(linkLabel, "Link Channels", LABEL_TEXT.WithAlign(EAlign::Far)));
 
   };
 #endif
