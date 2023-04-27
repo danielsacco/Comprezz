@@ -363,6 +363,7 @@
     <ClInclude Include="..\..\DspLibs\Compressor.h" />
     <ClInclude Include="..\..\DspLibs\Conversions.h" />
     <ClInclude Include="..\PatternMeter.h" />
+    <ClInclude Include="..\DelayLine.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">

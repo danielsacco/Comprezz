@@ -5,6 +5,8 @@
 #include <../../DspLibs/Detectors.h>
 #include "../DspLibs/Compressor.h"
 #include "PatternMeter.h"
+#include "DelayLine.h"
+#include "delay_line.h"
 
 const int kNumPresets = 1;
 
@@ -13,9 +15,10 @@ enum EParams
   kGain = 0,
   kRatio,
   kThreshold,
-  kAttack,
-  kRelease,
+  kAttackMs,      // Attack time in ms
+  kReleaseMs,     // Release time in ms
   kStereoLink,
+  kLookAhead,
   kNumParams
 };
 
@@ -48,10 +51,15 @@ private:
   IPeakSender<2> scMeterSender;
   IPeakSender<2> outMeterSender;
 
+  std::array<DelayLine<8192>, 2> delays;
+
   std::vector<Compressor> compressors;
 
   std::vector<DecoupledPeakDetector> scDetectors;
   std::vector<DecoupledPeakDetector> outDetectors;
+
+  void ClearDelaySamples();
+  void UpdateDelaySamples();
 
 #endif
 };

@@ -7,10 +7,9 @@ Requires code from https://github.com/danielsacco/DspLibs
 # TODO GUI
 - GUI Design
 - Create Presets
-- Look ahead on/off
 - Soft Knee
 
 
 # TODO DSP
-- Look ahead
+- Look ahead -> Remove glitches !!!
 - Soft Knee

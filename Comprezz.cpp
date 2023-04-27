@@ -8,9 +8,10 @@ Comprezz::Comprezz(const InstanceInfo& info)
   GetParam(kGain)->InitGain("Gain", 0., -3., 12., .5);
   GetParam(kRatio)->InitDouble("Ratio", 1.3, 1., 8., .1);
   GetParam(kThreshold)->InitDouble("Threshold", -30., -60., 0., .1, "dB");
-  GetParam(kAttack)->InitDouble("Attack", 10., 1., 100., .1, "ms");
-  GetParam(kRelease)->InitDouble("Release", 100., 50., 1000., 1., "ms");
+  GetParam(kAttackMs)->InitDouble("Attack", 10., 1., 100., .1, "ms");
+  GetParam(kReleaseMs)->InitDouble("Release", 100., 50., 1000., 1., "ms");
   GetParam(kStereoLink)->InitBool("Link Channels", false);
+  GetParam(kLookAhead)->InitBool("Look Ahead", false);
 
 #if IPLUG_EDITOR // http://bit.ly/2S64BDd
   mMakeGraphicsFunc = [&]() {
@@ -24,7 +25,7 @@ Comprezz::Comprezz(const InstanceInfo& info)
     pGraphics->LoadFont("ForkAwesome", FORK_AWESOME_FN);
 
     pGraphics->EnableTooltips(true);
-    pGraphics->EnableMouseOver(true);
+    //pGraphics->EnableMouseOver(true);
 
     const float HEADER_HEIGHT = 30.f;
     const float FOOTER_HEIGHT = 10.f;
@@ -74,8 +75,8 @@ Comprezz::Comprezz(const InstanceInfo& info)
 
     pGraphics->AttachControl(new IVSliderControl(ratioColumn.GetCentredInside(CONTROLS_SIZE), kRatio, "Ratio", CUSTOM_STYLE, true));
     pGraphics->AttachControl(new IVSliderControl(thresholdColumn.GetCentredInside(CONTROLS_SIZE), kThreshold, "Thr", CUSTOM_STYLE, true));
-    pGraphics->AttachControl(new IVSliderControl(attackColumn.GetCentredInside(CONTROLS_SIZE), kAttack, "Attack", CUSTOM_STYLE, true));
-    pGraphics->AttachControl(new IVSliderControl(releaseColumn.GetCentredInside(CONTROLS_SIZE), kRelease, "Release", CUSTOM_STYLE, true));
+    pGraphics->AttachControl(new IVSliderControl(attackColumn.GetCentredInside(CONTROLS_SIZE), kAttackMs, "Attack", CUSTOM_STYLE, true));
+    pGraphics->AttachControl(new IVSliderControl(releaseColumn.GetCentredInside(CONTROLS_SIZE), kReleaseMs, "Release", CUSTOM_STYLE, true));
 
     pGraphics->AttachControl(new IVInvertedPatternMeterControl<2>(grColumn.GetCentredInside(METERS_SIZE), "GR", METERS_STYLE, EDirection::Vertical, {}, 0, IVMeterControl<2>::EResponse::Log, -72.f, 0.f), kCtrlTagGrMeter);
     pGraphics->AttachControl(new IVPatternMeterControl<2>{scColumn.GetCentredInside(METERS_SIZE), "In/SC", METERS_STYLE, EDirection::Vertical, {}, 0, IVMeterControl<2>::EResponse::Log }, kCtrlTagScMeter);
@@ -92,6 +93,13 @@ Comprezz::Comprezz(const InstanceInfo& info)
     const IRECT linkLabel = IRECT(linkCheckbox.L - 80.f, bottomControls.T, linkCheckbox.L, bottomControls.B);
     pGraphics->AttachControl(new ITextControl(linkLabel, "Link Channels", LABEL_TEXT.WithAlign(EAlign::Far)));
 
+    const IRECT lookAheadCheckbox = bottomControls.SubRectHorizontal(columns, 0).GetHAlignedTo(scColumn, EAlign::Center).GetCentredInside(25.f);
+    pGraphics->AttachControl(new ITextToggleControl(lookAheadCheckbox, kLookAhead, u8"\uf096", u8"\uf14a", forkAwesomeText));
+
+    const IRECT lookAheadLabel = IRECT(lookAheadCheckbox.L - 80.f, bottomControls.T, lookAheadCheckbox.L, bottomControls.B);
+    pGraphics->AttachControl(new ITextControl(lookAheadLabel, "Look Ahead", LABEL_TEXT.WithAlign(EAlign::Far)));
+
+
   };
 #endif
 }
@@ -105,16 +113,30 @@ void Comprezz::OnParamChange(int paramIdx)
     linearGain = DBToAmp(GetParam(kGain)->Value());
     break;
   }
-  case kAttack:
+  case kLookAhead:
+  {
+    if (GetParam(kLookAhead)->Bool()) {
+      UpdateDelaySamples();
+    }
+    else {
+      ClearDelaySamples();
+    }
+  }
+  case kAttackMs:
     {
-      for (auto &compressor : compressors)
-        compressor.SetAttack(GetParam(kAttack)->Value());
+      double attackTimeMs = GetParam(kAttackMs)->Value();
+      for (auto& compressor : compressors)
+        compressor.SetAttack(attackTimeMs);
+
+      if (GetParam(kLookAhead)->Bool()) {
+        UpdateDelaySamples();
+      }
       break;
     }
-    case kRelease:
+    case kReleaseMs:
     {
       for (auto &compressor : compressors)
-        compressor.SetRelease(GetParam(kRelease)->Value());
+        compressor.SetRelease(GetParam(kReleaseMs)->Value());
       break;
     }
     case kRatio:
@@ -156,8 +178,8 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
         GetParam(kRatio)->Value(),
         0.,
         GetSampleRate(),
-        GetParam(kAttack)->Value(),
-        GetParam(kRelease)->Value()));
+        GetParam(kAttackMs)->Value(),
+        GetParam(kReleaseMs)->Value()));
     }
   }
 
@@ -169,8 +191,8 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
     {
       scDetectors.push_back(DecoupledPeakDetector(
         GetSampleRate(),
-        GetParam(kAttack)->Value(),
-        GetParam(kRelease)->Value()));
+        GetParam(kAttackMs)->Value(),
+        GetParam(kReleaseMs)->Value()));
     }
   }
 
@@ -181,8 +203,8 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
     {
       outDetectors.push_back(DecoupledPeakDetector(
         GetSampleRate(),
-        GetParam(kAttack)->Value(),
-        GetParam(kRelease)->Value()));
+        GetParam(kAttackMs)->Value(),
+        GetParam(kReleaseMs)->Value()));
     }
   }
 
@@ -190,10 +212,12 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   double** vcaMeter = new double*[nChans];
   double** scMeter = new double* [nChans];
   double** outMeter = new double* [nChans];
+  double** delayedInput = new double* [nChans];
   for (int i = 0; i < nChans; i++) {
     vcaMeter[i] = new double[nFrames];
     scMeter[i] = new double[nFrames];
     outMeter[i] = new double[nFrames];
+    delayedInput[i] = new double[nFrames];
   }
 
   double* sidechain = nullptr;
@@ -212,19 +236,46 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
       }
       sidechain[s] = average / nChans;
     }
-  }
-
-  // Process signal thru compressors
-  for (int i = 0; i < nChans; i++)
-  {
-    (&compressors[i])->ProcessBlock(inputs[i], sidechain, outputs[i], vcaMeter[i], nFrames);
-
-    // Apply output gain
-    for (int s = 0; s < nFrames; s++)
+    // Process signal thru compressors using sidechain
+    for (int i = 0; i < nChans; i++)
     {
-      outputs[i][s] = outputs[i][s] * linearGain;
+      auto delay = &delays[i];
+      for (int s = 0; s < nFrames; s++)
+      {
+        delay->Write(inputs[i][s]);
+        delayedInput[i][s] = delay->Read();
+      }
+      (&compressors[i])->ProcessBlock(delayedInput[i], sidechain, outputs[i], vcaMeter[i], nFrames);
+
+      // Apply output gain
+      for (int s = 0; s < nFrames; s++)
+      {
+        outputs[i][s] = outputs[i][s] * linearGain;
+      }
     }
   }
+  else
+  {
+    // Process signal thru compressors using the inputs as sidechain
+    for (int i = 0; i < nChans; i++)
+    {
+      auto delay = &delays[i];
+      for (int s = 0; s < nFrames; s++)
+      {
+        delay->Write(inputs[i][s]);
+        delayedInput[i][s] = delay->Read();
+      }
+      (&compressors[i])->ProcessBlock(delayedInput[i], inputs[i], outputs[i], vcaMeter[i], nFrames);
+
+      // Apply output gain
+      for (int s = 0; s < nFrames; s++)
+      {
+        outputs[i][s] = outputs[i][s] * linearGain;
+      }
+    }
+  }
+
+
 
   // Fill sc and out meters
   for (int i = 0; i < nChans; i++)
@@ -245,14 +296,16 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   outMeterSender.ProcessBlock(outMeter, nFrames, kCtrlTagOutMeter);
 
   // Horrible: Deallocate arrays
-  for (int i = 0; i < nChans; i++) {
-    delete[] vcaMeter[i];
-    delete[] scMeter[i];
-    delete[] outMeter[i];
+  for (int channel = 0; channel < nChans; channel++) {
+    delete[] vcaMeter[channel];
+    delete[] scMeter[channel];
+    delete[] outMeter[channel];
+    delete[] delayedInput[channel];
   }
   delete[] vcaMeter;
   delete[] scMeter;
   delete[] outMeter;
+  delete[] delayedInput;
 
   if (sidechain)
   {
@@ -267,4 +320,20 @@ void Comprezz::OnIdle()
   outMeterSender.TransmitData(*this);
 }
 
+
+void Comprezz::UpdateDelaySamples()
+{
+  double sampleRate = GetSampleRate();
+  double attackTimeMs = GetParam(kAttackMs)->Value();
+  int delaySamples = std::ceil(sampleRate * attackTimeMs / 1000.);
+
+  for (auto& delay : delays) delay.SetDelaySamples(delaySamples);
+  SetLatency(delaySamples);
+}
+
+void Comprezz::ClearDelaySamples()
+{
+  for (auto& delay : delays) delay.SetDelaySamples(0);
+  SetLatency(0);
+}
 #endif
