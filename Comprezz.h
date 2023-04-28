@@ -8,7 +8,7 @@
 #include "DelayLine.h"
 #include "delay_line.h"
 
-const int kNumPresets = 1;
+const int kNumPresets = 2;
 
 enum EParams
 {

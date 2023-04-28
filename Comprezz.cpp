@@ -13,6 +13,11 @@ Comprezz::Comprezz(const InstanceInfo& info)
   GetParam(kStereoLink)->InitBool("Link Channels", false);
   GetParam(kLookAhead)->InitBool("Look Ahead", false);
 
+  // Factory Presets
+  // Params in order: kGain, kRatio, kThreshold, kAttackMs, kReleaseMs, kStereoLink, kLookAhead
+  MakePreset("Bass Attack", 6., 5.4, -20., 30., 300., true, false);
+  MakePreset("Kick Drum Sustain", 6. , 2.5, -20., 10., 50., true, true);
+
 #if IPLUG_EDITOR // http://bit.ly/2S64BDd
   mMakeGraphicsFunc = [&]() {
     return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
@@ -60,6 +65,7 @@ Comprezz::Comprezz(const InstanceInfo& info)
     const IRECT bottomControls = fullUI.GetFromBottom(BOTOM_CONTROLS_HEIGHT).GetVShifted(-FOOTER_HEIGHT);
 
     pGraphics->AttachControl(new ITextControl(header, "Just Another Basic Digital Compressor", DEFAULT_TEXT.WithSize(20.f)));
+    //pGraphics->AttachControl(new IVBakedPresetManagerControl(header));
 
     // TODO Improve this section !!!
     const int columns = 9;
