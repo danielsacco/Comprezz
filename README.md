@@ -6,9 +6,7 @@ Requires code from https://github.com/danielsacco/DspLibs
 
 # TODO GUI
 - GUI Design
-- Soft Knee
 
 
 # TODO DSP
 - Look ahead -> Remove glitches !!!
-- Soft Knee

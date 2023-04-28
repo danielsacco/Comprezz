@@ -6,17 +6,19 @@ Comprezz::Comprezz(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kGain)->InitGain("Gain", 0., -3., 12., .5);
-  GetParam(kRatio)->InitDouble("Ratio", 1.3, 1., 8., .1);
+  GetParam(kRatio)->InitDouble("Ratio", 1.3, 1., 6., .1);
   GetParam(kThreshold)->InitDouble("Threshold", -30., -60., 0., .1, "dB");
   GetParam(kAttackMs)->InitDouble("Attack", 10., 1., 100., .1, "ms");
   GetParam(kReleaseMs)->InitDouble("Release", 100., 50., 1000., 1., "ms");
   GetParam(kStereoLink)->InitBool("Link Channels", false);
   GetParam(kLookAhead)->InitBool("Look Ahead", false);
+  GetParam(kKneeWidth)->InitDouble("Knee Width", 0., 0., 10., .1, "dB");
 
   // Factory Presets
-  // Params in order: kGain, kRatio, kThreshold, kAttackMs, kReleaseMs, kStereoLink, kLookAhead
-  MakePreset("Bass Attack", 6., 5.4, -20., 30., 300., true, false);
-  MakePreset("Kick Drum Sustain", 6. , 2.5, -20., 10., 50., true, true);
+  // Params in order: kGain, kRatio, kThreshold, kAttackMs, kReleaseMs, kStereoLink, kLookAhead, kKneeWidth
+  MakePreset("Bass Attack", 6., 5., -20., 30., 300., true, false, 4.);
+  MakePreset("Kick Drum Sustain", 6. , 2.5, -20., 10., 50., true, true, 0.);
+  MakePreset("Tight Program Compression", 12., 6., -18., 15., 75., true, true, 6.);
 
 #if IPLUG_EDITOR // http://bit.ly/2S64BDd
   mMakeGraphicsFunc = [&]() {
@@ -28,9 +30,6 @@ Comprezz::Comprezz(const InstanceInfo& info)
     pGraphics->AttachPanelBackground(COLOR_MID_GRAY);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     pGraphics->LoadFont("ForkAwesome", FORK_AWESOME_FN);
-
-    pGraphics->EnableTooltips(true);
-    //pGraphics->EnableMouseOver(true);
 
     const float HEADER_HEIGHT = 30.f;
     const float FOOTER_HEIGHT = 10.f;
@@ -65,13 +64,13 @@ Comprezz::Comprezz(const InstanceInfo& info)
     const IRECT bottomControls = fullUI.GetFromBottom(BOTOM_CONTROLS_HEIGHT).GetVShifted(-FOOTER_HEIGHT);
 
     pGraphics->AttachControl(new ITextControl(header, "Just Another Basic Digital Compressor", DEFAULT_TEXT.WithSize(20.f)));
-    //pGraphics->AttachControl(new IVBakedPresetManagerControl(header));
 
     // TODO Improve this section !!!
-    const int columns = 9;
+    const int columns = 10;
     int nextColumn = 0;
     const IRECT ratioColumn = mainControls.GetGridCell(0, nextColumn++, 1, columns);
     const IRECT thresholdColumn = mainControls.GetGridCell(0, nextColumn++, 1, columns);
+    const IRECT kneeColumn = mainControls.GetGridCell(0, nextColumn++, 1, columns);
     const IRECT scColumn = mainControls.GetGridCell(0, nextColumn++, 1, columns);
     const IRECT attackColumn = mainControls.GetGridCell(0, nextColumn++, 1, columns);
     const IRECT releaseColumn = mainControls.GetGridCell(0, nextColumn++, 1, columns);
@@ -81,14 +80,13 @@ Comprezz::Comprezz(const InstanceInfo& info)
 
     pGraphics->AttachControl(new IVSliderControl(ratioColumn.GetCentredInside(CONTROLS_SIZE), kRatio, "Ratio", CUSTOM_STYLE, true));
     pGraphics->AttachControl(new IVSliderControl(thresholdColumn.GetCentredInside(CONTROLS_SIZE), kThreshold, "Thr", CUSTOM_STYLE, true));
+    pGraphics->AttachControl(new IVSliderControl(kneeColumn.GetCentredInside(CONTROLS_SIZE), kKneeWidth, "Knee", CUSTOM_STYLE, true));
+    pGraphics->AttachControl(new IVPatternMeterControl<2>{ scColumn.GetCentredInside(METERS_SIZE), "In/SC", METERS_STYLE, EDirection::Vertical, {}, 0, IVMeterControl<2>::EResponse::Log }, kCtrlTagScMeter);
     pGraphics->AttachControl(new IVSliderControl(attackColumn.GetCentredInside(CONTROLS_SIZE), kAttackMs, "Attack", CUSTOM_STYLE, true));
     pGraphics->AttachControl(new IVSliderControl(releaseColumn.GetCentredInside(CONTROLS_SIZE), kReleaseMs, "Release", CUSTOM_STYLE, true));
-
     pGraphics->AttachControl(new IVInvertedPatternMeterControl<2>(grColumn.GetCentredInside(METERS_SIZE), "GR", METERS_STYLE, EDirection::Vertical, {}, 0, IVMeterControl<2>::EResponse::Log, -72.f, 0.f), kCtrlTagGrMeter);
-    pGraphics->AttachControl(new IVPatternMeterControl<2>{scColumn.GetCentredInside(METERS_SIZE), "In/SC", METERS_STYLE, EDirection::Vertical, {}, 0, IVMeterControl<2>::EResponse::Log }, kCtrlTagScMeter);
-    pGraphics->AttachControl(new IVPatternMeterControl<2>(outColumn.GetCentredInside(METERS_SIZE), "Out", METERS_STYLE, EDirection::Vertical, {}, 0, IVMeterControl<2>::EResponse::Log), kCtrlTagOutMeter);
-
     pGraphics->AttachControl(new IVSliderControl(gainColumn.GetCentredInside(CONTROLS_SIZE), kGain, "Make Up", CUSTOM_STYLE, true));
+    pGraphics->AttachControl(new IVPatternMeterControl<2>(outColumn.GetCentredInside(METERS_SIZE), "Out", METERS_STYLE, EDirection::Vertical, {}, 0, IVMeterControl<2>::EResponse::Log), kCtrlTagOutMeter);
 
     const IVStyle LINK_CHANNELS_STYLE = DEFAULT_STYLE.WithLabelText(LABEL_TEXT.WithAlign(EAlign::Near).WithVAlign(EVAlign::Middle));
     const IText forkAwesomeText{ 16.f, "ForkAwesome" };
@@ -127,6 +125,7 @@ void Comprezz::OnParamChange(int paramIdx)
     else {
       ClearDelaySamples();
     }
+    break;
   }
   case kAttackMs:
     {
@@ -157,6 +156,12 @@ void Comprezz::OnParamChange(int paramIdx)
         compressor.SetThreshold(GetParam(kThreshold)->Value());
       break;
     }
+    case kKneeWidth:
+    {
+      for (auto& compressor : compressors)
+        compressor.SetKneeWidth(GetParam(kKneeWidth)->Value());
+      break;
+    }
   }
 }
 
@@ -182,7 +187,7 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
       compressors.push_back(Compressor(
         GetParam(kThreshold)->Value(),
         GetParam(kRatio)->Value(),
-        0.,
+        GetParam(kKneeWidth)->Value(),
         GetSampleRate(),
         GetParam(kAttackMs)->Value(),
         GetParam(kReleaseMs)->Value()));

@@ -136,6 +136,7 @@
     </ClCompile>
     <ClCompile Include="..\..\DspLibs\Detectors.cpp" />
     <ClCompile Include="..\..\DspLibs\Compressor.cpp" />
+    <ClCompile Include="..\..\DspLibs\GainReductionComputer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../config.h" />
@@ -364,6 +365,7 @@
     <ClInclude Include="..\..\DspLibs\Conversions.h" />
     <ClInclude Include="..\PatternMeter.h" />
     <ClInclude Include="..\DelayLine.h" />
+    <ClInclude Include="..\..\DspLibs\GainReductionComputer.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">

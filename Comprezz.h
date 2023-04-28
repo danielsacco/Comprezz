@@ -8,7 +8,7 @@
 #include "DelayLine.h"
 #include "delay_line.h"
 
-const int kNumPresets = 2;
+const int kNumPresets = 3;
 
 enum EParams
 {
@@ -19,6 +19,7 @@ enum EParams
   kReleaseMs,     // Release time in ms
   kStereoLink,
   kLookAhead,
+  kKneeWidth,
   kNumParams
 };
 
@@ -57,7 +58,7 @@ private:
 
   std::vector<DecoupledPeakDetector> scDetectors;
   std::vector<DecoupledPeakDetector> outDetectors;
-
+ 
   void ClearDelaySamples();
   void UpdateDelaySamples();
 

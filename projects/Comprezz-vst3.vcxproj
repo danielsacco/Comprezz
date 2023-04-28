@@ -330,6 +330,7 @@
     <ClInclude Include="..\..\DspLibs\Compressor.h" />
     <ClInclude Include="..\..\DspLibs\Conversions.h" />
     <ClInclude Include="..\..\DspLibs\Detectors.h" />
+    <ClInclude Include="..\..\DspLibs\GainReductionComputer.h" />
     <ClInclude Include="..\Comprezz.h" />
     <ClInclude Include="..\PatternMeter.h" />
     <ClInclude Include="..\resources\resource.h" />
@@ -396,6 +397,7 @@
     <ClCompile Include="..\..\..\IPlug\VST3\IPlugVST3_ProcessorBase.cpp" />
     <ClCompile Include="..\..\DspLibs\Compressor.cpp" />
     <ClCompile Include="..\..\DspLibs\Detectors.cpp" />
+    <ClCompile Include="..\..\DspLibs\GainReductionComputer.cpp" />
     <ClCompile Include="..\Comprezz.cpp" />
   </ItemGroup>
   <ItemGroup>

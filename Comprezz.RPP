@@ -1,4 +1,4 @@
-<REAPER_PROJECT 0.1 "6.78/win64" 1682681834
+<REAPER_PROJECT 0.1 "6.78/win64" 1682723619
   RIPPLE 0
   GROUPOVERRIDE 0 0 0
   AUTOXFADE 129
@@ -15,7 +15,7 @@
   VIDEO_CONFIG 0 0 256
   PANMODE 3
   CURSOR 9.5
-  ZOOM 50.47430263272119 344 0
+  ZOOM 50.47430263272119 348 0
   VZOOMEX 5.30684948 0
   USE_REC_CFG 0
   RECMODE 1
@@ -116,7 +116,7 @@
       DOCKED 0
       BYPASS 0 0 0
       <JS analysis/gfxscope ""
-        2000 0 2 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        20.674529 0 3 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       >
       FLOATPOS 0 0 0 0
       FXID {818C143E-488D-4597-A133-4B898EAC8C3D}
@@ -142,7 +142,7 @@
     PEAKCOL 16576
     BEAT -1
     AUTOMODE 0
-    VOLPAN 0.70462939198009 0 -1 -1 1
+    VOLPAN 1 0 -1 -1 1
     MUTESOLO 0 0 0
     IPHASE 0
     PLAYOFFS 0 1
@@ -161,28 +161,29 @@
     MIDIOUT -1
     MAINSEND 1 0
     <FXCHAIN
-      WNDRECT 2071 338 827 363
+      WNDRECT 2244 376 827 363
       SHOW 2
       LASTSEL 1
       DOCKED 0
       BYPASS 1 0 0
       <VST "VST3: Disthorzion (DES)" Disthorzion.vst3 0 "" 696467037{F2AEE70D00DE4F4E0044455344535448} ""
-        XT6DKe5e7f4CAAAAAQAAAAAAAAACAAAAAAAAAAQAAAABAAAAAAAAAAIAAAAAAAAABAAAAAAAAAAIAAAAAAAAAEQAAAABAAAA//8QAA==
-        NAAAAAEAAAAAAAAAAAAAAKpFtvP91OK/dC6BrGG0+j96ndiJndgAQAAAAAAAAPA/AAAAAAAAJEAAAAAAAAAAAAAAAAA=
-        AAAQAAAA
+        XT6DKe5e7f4CAAAAAQAAAAAAAAACAAAAAAAAAAQAAAABAAAAAAAAAAIAAAAAAAAABAAAAAAAAAAIAAAAAAAAAEQAAAABAAAAAQAQAA==
+        NAAAAAEAAAAAAAAAAAAkwJqZmZmZmeG/mpmZmZmZIkAAAAAAAAAYQAAAAAAAAPA/AAAAAAAAJEAAAAAAAAAAAAAAAAA=
+        AEJhc3MgT3ZlcmRyaXZlABAAAAA=
       >
+      PRESETNAME "Bass Overdrive"
       FLOATPOS 0 0 0 0
       FXID {FE31172F-A595-4E78-8F36-14407FDFC3BC}
       WAK 0 0
       BYPASS 0 0 0
       <VST "VST3: Comprezz (DES)" Comprezz.vst3 0 "" 1999685670{F2AEE70D00DE4F4E00444553434D505A} ""
-        Jsgwd+5e7f4CAAAAAQAAAAAAAAACAAAAAAAAAAQAAAABAAAAAAAAAAIAAAAAAAAABAAAAAAAAAAIAAAAAAAAAEwAAAABAAAAAAAQAA==
-        PAAAAAEAAAAAAAAAAAAYQGJpaWlp6QJAhIeHh4eHN8AAAAAAAAAkQAAAAAAAAElAAAAAAAAAAAAAAAAAAADwPwAAAAAAAAAAAAAAAA==
-        AFBydWViaXRhABAAAAA=
+        Jsgwd+5e7f4CAAAAAQAAAAAAAAACAAAAAAAAAAQAAAABAAAAAAAAAAIAAAAAAAAABAAAAAAAAAAIAAAAAAAAAFQAAAABAAAAAgAQAA==
+        RAAAAAEAAAAAAAAAAAAoQAAAAAAAABhAAAAAAAAAMsAAAAAAAAAuQAAAAAAAwFJAAAAAAAAA8D8AAAAAAADwPwAAAAAAABhAAAAAAAAAAAAAAAAA
+        AFRpZ2h0IFByb2dyYW0gQ29tcHJlc3Npb24AEAAAAA==
       >
-      PRESETNAME Pruebita
+      PRESETNAME "Tight Program Compression"
       FLOATPOS 0 0 0 0
-      FXID {4802C0A5-92ED-40B8-A10D-83D8327BFB59}
+      FXID {CBD7D844-17FF-43AB-8A70-B62FDB026140}
       WAK 0 0
     >
   >
@@ -191,14 +192,14 @@
     PEAKCOL 16576
     BEAT -1
     AUTOMODE 0
-    VOLPAN 3.98107170553497 0 -1 -1 1
+    VOLPAN 1 0 -1 -1 1
     MUTESOLO 0 0 0
     IPHASE 0
     PLAYOFFS 0 1
     ISBUS 1 1
     BUSCOMP 0 0 0 0 0
     SHOWINMIX 1 0.6667 0.5 1 0.5 0 0 0
-    SEL 0
+    SEL 1
     REC 0 0 1 0 0 0 0 0
     VU 2
     TRACKHEIGHT 0 0 0 0 0 0
@@ -216,7 +217,7 @@
       DOCKED 0
       BYPASS 0 0 0
       <JS analysis/gfxscope ""
-        129.695992 0.2 3 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        29.760833 0 3 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       >
       FLOATPOS 0 0 0 0
       FXID {5F95E48B-BA6D-4840-B259-FF25A847E989}
@@ -247,11 +248,11 @@
     MIDIOUT -1
     MAINSEND 1 0
     <FXCHAIN
-      WNDRECT 2253 295 716 290
+      WNDRECT 2116 128 716 310
       SHOW 0
-      LASTSEL 0
+      LASTSEL 1
       DOCKED 0
-      BYPASS 0 0 0
+      BYPASS 1 0 0
       <JS synthesis/tonegenerator ""
         -12 -6 440 0 0 0 0 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       >
@@ -260,7 +261,7 @@
       WAK 0 0
       BYPASS 1 0 0
       <JS synthesis/tonegeneratorV2 ""
-        -12 -6 440 0 -2 0 4 52.2 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        -3 -6 440 0 -3 0 4 33.6 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       >
       FLOATPOS 0 0 0 0
       FXID {9D4A16BF-3F5D-46ED-AA9B-0CC8A91D672D}
@@ -279,14 +280,14 @@
     PEAKCOL 16576
     BEAT -1
     AUTOMODE 0
-    VOLPAN 1 -1 -1 -1 1
-    MUTESOLO 1 0 0
+    VOLPAN 1 0 -1 -1 1
+    MUTESOLO 0 0 0
     IPHASE 0
     PLAYOFFS 0 1
     ISBUS 0 0
     BUSCOMP 0 0 0 0 0
     SHOWINMIX 1 0.6667 0.5 1 0.5 0 0 0
-    SEL 1
+    SEL 0
     REC 0 0 1 0 0 0 0 0
     VU 2
     TRACKHEIGHT 0 0 0 0 0 0
