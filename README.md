@@ -6,7 +6,6 @@ Requires code from https://github.com/danielsacco/DspLibs
 
 # TODO GUI
 - GUI Design
-- Create Presets
 - Soft Knee
 
 
