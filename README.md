@@ -6,7 +6,9 @@ Requires code from https://github.com/danielsacco/DspLibs
 
 # TODO GUI
 - GUI Design
+- M/S
 
 
 # TODO DSP
 - Look ahead -> Remove glitches !!!
+- M/S
