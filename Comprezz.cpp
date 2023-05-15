@@ -131,7 +131,7 @@ void Comprezz::OnParamChange(int paramIdx)
     {
       double attackTimeMs = GetParam(kAttackMs)->Value();
       for (auto& compressor : compressors)
-        compressor.SetAttack(attackTimeMs);
+        compressor.SetAttackTime(attackTimeMs / 1000.);
 
       if (GetParam(kLookAhead)->Bool()) {
         UpdateDelaySamples();
@@ -141,7 +141,7 @@ void Comprezz::OnParamChange(int paramIdx)
     case kReleaseMs:
     {
       for (auto &compressor : compressors)
-        compressor.SetRelease(GetParam(kReleaseMs)->Value());
+        compressor.SetReleaseTime(GetParam(kReleaseMs)->Value() / 1000.);
       break;
     }
     case kRatio:
@@ -184,13 +184,13 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
     compressors.clear();
     for (int i = 0; i < nChans; i++)
     {
-      compressors.push_back(Compressor(
+      compressors.push_back(dsptk::Compressor(
         GetParam(kThreshold)->Value(),
         GetParam(kRatio)->Value(),
         GetParam(kKneeWidth)->Value(),
         GetSampleRate(),
-        GetParam(kAttackMs)->Value(),
-        GetParam(kReleaseMs)->Value()));
+        GetParam(kAttackMs)->Value() / 1000,
+        GetParam(kReleaseMs)->Value() / 1000));
     }
   }
 
@@ -200,10 +200,10 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
     scDetectors.clear();
     for (int i = 0; i < nChans; i++)
     {
-      scDetectors.push_back(DecoupledPeakDetector(
+      scDetectors.push_back(dsptk::DecoupledPeakDetector(
         GetSampleRate(),
-        GetParam(kAttackMs)->Value(),
-        GetParam(kReleaseMs)->Value()));
+        GetParam(kAttackMs)->Value() / 1000.,
+        GetParam(kReleaseMs)->Value() / 1000.));
     }
   }
 
@@ -212,10 +212,10 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
     outDetectors.clear();
     for (int i = 0; i < nChans; i++)
     {
-      outDetectors.push_back(DecoupledPeakDetector(
+      outDetectors.push_back(dsptk::DecoupledPeakDetector(
         GetSampleRate(),
-        GetParam(kAttackMs)->Value(),
-        GetParam(kReleaseMs)->Value()));
+        GetParam(kAttackMs)->Value() / 1000,
+        GetParam(kReleaseMs)->Value() / 1000));
     }
   }
 

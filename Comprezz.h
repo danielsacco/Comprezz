@@ -2,8 +2,8 @@
 
 #include "IPlug_include_in_plug_hdr.h"
 #include "IControls.h"
-#include <../../DspLibs/Detectors.h>
-#include "../DspLibs/Compressor.h"
+#include <detector.h>
+#include <dynamics.h>
 #include "PatternMeter.h"
 #include "DelayLine.h"
 #include "delay_line.h"
@@ -52,12 +52,13 @@ private:
   IPeakSender<2> scMeterSender;
   IPeakSender<2> outMeterSender;
 
+  // TODO This fixed size does not support 96000 sampleRate, should be dynamic
   std::array<DelayLine<8192>, 2> delays;
 
-  std::vector<Compressor> compressors;
+  std::vector<dsptk::Compressor> compressors;
 
-  std::vector<DecoupledPeakDetector> scDetectors;
-  std::vector<DecoupledPeakDetector> outDetectors;
+  std::vector<dsptk::DecoupledPeakDetector> scDetectors;
+  std::vector<dsptk::DecoupledPeakDetector> outDetectors;
  
   void ClearDelaySamples();
   void UpdateDelaySamples();

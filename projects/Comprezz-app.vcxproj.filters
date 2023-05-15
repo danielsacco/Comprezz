@@ -77,8 +77,6 @@
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.cpp">
       <Filter>IGraphics\Drawing</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\DspLibs\Detectors.cpp" />
-    <ClCompile Include="..\..\DspLibs\Compressor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Comprezz.h" />
@@ -260,10 +258,8 @@
     <ClInclude Include="..\..\..\IPlug\ISender.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\DspLibs\Detectors.h" />
-    <ClInclude Include="..\..\DspLibs\Compressor.h" />
-    <ClInclude Include="..\..\DspLibs\Conversions.h" />
     <ClInclude Include="..\PatternMeter.h" />
+    <ClInclude Include="..\DelayLine.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">

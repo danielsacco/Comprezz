@@ -118,6 +118,8 @@
     <IntDir>$(SolutionDir)build-win\vst3\$(Platform)\$(Configuration)\int\</IntDir>
     <LinkIncremental />
     <TargetExt>.vst3</TargetExt>
+    <IncludePath>E:\Dev\Projects\dsptk\out\install\x64-debug\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\Dev\Projects\dsptk\out\install\x64-debug\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)build-win\vst3\$(Platform)\$(Configuration)\</OutDir>
@@ -173,7 +175,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dsptk.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent />
   </ItemDefinitionGroup>
@@ -327,10 +329,6 @@
     <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_Parameter.h" />
     <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_ProcessorBase.h" />
     <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_View.h" />
-    <ClInclude Include="..\..\DspLibs\Compressor.h" />
-    <ClInclude Include="..\..\DspLibs\Conversions.h" />
-    <ClInclude Include="..\..\DspLibs\Detectors.h" />
-    <ClInclude Include="..\..\DspLibs\GainReductionComputer.h" />
     <ClInclude Include="..\Comprezz.h" />
     <ClInclude Include="..\PatternMeter.h" />
     <ClInclude Include="..\resources\resource.h" />
@@ -395,9 +393,6 @@
     <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp" />
     <ClCompile Include="..\..\..\IPlug\VST3\IPlugVST3.cpp" />
     <ClCompile Include="..\..\..\IPlug\VST3\IPlugVST3_ProcessorBase.cpp" />
-    <ClCompile Include="..\..\DspLibs\Compressor.cpp" />
-    <ClCompile Include="..\..\DspLibs\Detectors.cpp" />
-    <ClCompile Include="..\..\DspLibs\GainReductionComputer.cpp" />
     <ClCompile Include="..\Comprezz.cpp" />
   </ItemGroup>
   <ItemGroup>
