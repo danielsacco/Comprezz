@@ -81,12 +81,12 @@ Comprezz::Comprezz(const InstanceInfo& info)
     pGraphics->AttachControl(new IVSliderControl(ratioColumn.GetCentredInside(CONTROLS_SIZE), kRatio, "Ratio", CUSTOM_STYLE, true));
     pGraphics->AttachControl(new IVSliderControl(thresholdColumn.GetCentredInside(CONTROLS_SIZE), kThreshold, "Thr", CUSTOM_STYLE, true));
     pGraphics->AttachControl(new IVSliderControl(kneeColumn.GetCentredInside(CONTROLS_SIZE), kKneeWidth, "Knee", CUSTOM_STYLE, true));
-    pGraphics->AttachControl(new IVPatternMeterControl<2>{ scColumn.GetCentredInside(METERS_SIZE), "In/SC", METERS_STYLE, EDirection::Vertical, {}, 0, IVMeterControl<2>::EResponse::Log }, kCtrlTagScMeter);
+    pGraphics->AttachControl(new IVPatternMeterControl<2>{ scColumn.GetCentredInside(METERS_SIZE), "In/SC", METERS_STYLE, EDirection::Vertical, {}, 0, IVMeterControl<>::EResponse::Log }, kCtrlTagScMeter);
     pGraphics->AttachControl(new IVSliderControl(attackColumn.GetCentredInside(CONTROLS_SIZE), kAttackMs, "Attack", CUSTOM_STYLE, true));
     pGraphics->AttachControl(new IVSliderControl(releaseColumn.GetCentredInside(CONTROLS_SIZE), kReleaseMs, "Release", CUSTOM_STYLE, true));
-    pGraphics->AttachControl(new IVInvertedPatternMeterControl<2>(grColumn.GetCentredInside(METERS_SIZE), "GR", METERS_STYLE, EDirection::Vertical, {}, 0, IVMeterControl<2>::EResponse::Log, -72.f, 0.f), kCtrlTagGrMeter);
+    pGraphics->AttachControl(new IVInvertedPatternMeterControl<>(grColumn.GetCentredInside(METERS_SIZE), "GR", METERS_STYLE, EDirection::Vertical, {}, 0), kCtrlTagGrMeter);
     pGraphics->AttachControl(new IVSliderControl(gainColumn.GetCentredInside(CONTROLS_SIZE), kGain, "Make Up", CUSTOM_STYLE, true));
-    pGraphics->AttachControl(new IVPatternMeterControl<2>(outColumn.GetCentredInside(METERS_SIZE), "Out", METERS_STYLE, EDirection::Vertical, {}, 0, IVMeterControl<2>::EResponse::Log), kCtrlTagOutMeter);
+    pGraphics->AttachControl(new IVPatternMeterControl<>(outColumn.GetCentredInside(METERS_SIZE), "Out", METERS_STYLE, EDirection::Vertical, {}, 0), kCtrlTagOutMeter);
 
     const IVStyle LINK_CHANNELS_STYLE = DEFAULT_STYLE.WithLabelText(LABEL_TEXT.WithAlign(EAlign::Near).WithVAlign(EVAlign::Middle));
     const IText forkAwesomeText{ 16.f, "ForkAwesome" };
@@ -327,8 +327,8 @@ void Comprezz::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 void Comprezz::OnIdle()
 {
   grMeterSender.TransmitData(*this);
-  scMeterSender.TransmitData(*this);
-  outMeterSender.TransmitData(*this);
+  //scMeterSender.TransmitData(*this);
+  //outMeterSender.TransmitData(*this);
 }
 
 

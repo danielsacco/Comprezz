@@ -2,8 +2,11 @@
 
 #include "IVMeterControl.h"
 
-using namespace iplug;
-using namespace igraphics;
+//using namespace iplug;
+//using namespace igraphics;
+
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 
 template <int MAXNC = 1>
 class IVPatternMeterControl : public IVMeterControl<MAXNC>
@@ -16,31 +19,39 @@ public:
     EDirection dir = EDirection::Vertical,
     std::initializer_list<const char*> trackNames = {},
     int totalNSegs = 0,
-    EResponse response = EResponse::Linear,
+    IVMeterControl<>::EResponse response = IVMeterControl<>::EResponse::Linear,
     float lowRangeDB = -72.f,
     float highRangeDB = 12.f,
     std::initializer_list<int> markers = { 0, -6, -12, -24, -48 })
-    : IVMeterControl<MAXNC>(bounds, label, style, dir, trackNames, totalNSegs, response, lowRangeDB, highRangeDB, markers)
+    : IVMeterControl<MAXNC>{
+        bounds,
+        label,
+        style,
+        dir,
+        trackNames,
+        totalNSegs
+    }
+    //: IVMeterControl<MAXNC>(bounds, label, style, dir, trackNames, totalNSegs, response, lowRangeDB, highRangeDB, markers)
   {
   };
 
   virtual void DrawTrackHandle(IGraphics& g, const IRECT& r, int chIdx, bool aboveBaseValue) override
   {
-    auto interpolationValue = std::min(std::pow(GetValue(chIdx), 3), 1.);
+    auto interpolationValue = std::min(std::pow(IControl::GetValue(chIdx), 3), 1.);
 
-    IColor minColor = GetColor(kX2);
-    IColor maxColor = GetColor(kX3);
+    IColor minColor = IVectorBase::GetColor(kX2);
+    IColor maxColor = IVectorBase::GetColor(kX3);
     IColor topColor = IColor::LinearInterpolateBetween(minColor, maxColor, interpolationValue);
 
     g.FillRectWithPattern(
       IPattern::CreateLinearGradient(r, EDirection::Vertical, {
         {topColor, 0.f}, {minColor, 1.f} }
-    ), r, &mBlend);
+    ), r, &(IControl::mBlend));
 
 
-    if (chIdx == mMouseOverTrack)
+    if (chIdx == IVTrackControlBase::mMouseOverTrack)
     {
-      g.FillRect(GetColor(kHL), r, &mBlend);
+      g.FillRect(IVectorBase::GetColor(kHL), r, &(IControl::mBlend));
     }
   }
 
@@ -57,7 +68,7 @@ public:
     EDirection dir = EDirection::Vertical,
     std::initializer_list<const char*> trackNames = {},
     int totalNSegs = 0,
-    EResponse response = EResponse::Linear,
+    IVMeterControl<>::EResponse response = IVMeterControl<>::EResponse::Linear,
     float lowRangeDB = -72.f,
     float highRangeDB = 12.f,
     std::initializer_list<int> markers = { 0, -6, -12, -24, -48 })
@@ -72,22 +83,25 @@ public:
     // - top should be mTargetRect.top
     IRECT invertedTrackHandle = IRECT(r.L, IControl::mTargetRECT.T, r.R, r.T);
 
-    auto interpolationValue = std::min(std::pow(GetValue(chIdx), 3), 1.);
+    auto interpolationValue = std::min(std::pow(IControl::GetValue(chIdx), 3), 1.);
 
-    IColor minColor = GetColor(kX2);
-    IColor maxColor = GetColor(kX3);
+    IColor minColor = IVectorBase::GetColor(kX2);
+    IColor maxColor = IVectorBase::GetColor(kX3);
     IColor topColor = IColor::LinearInterpolateBetween(maxColor, minColor, interpolationValue);
 
     g.FillRectWithPattern(
       IPattern::CreateLinearGradient(invertedTrackHandle, EDirection::Vertical, {
         {minColor, 0.f}, {topColor, 1.f} }
-    ), invertedTrackHandle, &mBlend);
+    ), invertedTrackHandle, &(IControl::mBlend));
 
 
-    if (chIdx == mMouseOverTrack)
+    if (chIdx == IVTrackControlBase::mMouseOverTrack)
     {
-      g.FillRect(GetColor(kHL), r, &mBlend);
+      g.FillRect(IVectorBase::GetColor(kHL), r, &(IControl::mBlend));
     }
   }
 
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
