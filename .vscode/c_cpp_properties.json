@@ -14,13 +14,14 @@
             "IGRAPHICS_NANOVG",
             "NOMINMAX"
         ]
-      },
+    },
     "configurations": [
         {
             "name": "Mac",
             "includePath": [
                 "${commonIncludePaths}",
-                "${workspaceFolder}/../../Dependencies/Build/mac/include/**"
+                "${workspaceFolder}/../../Dependencies/Build/mac/include/**",
+                "/usr/local/include"
             ],
             "defines": [
                 "${commonDefs}",
