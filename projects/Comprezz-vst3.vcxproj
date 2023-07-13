@@ -118,8 +118,8 @@
     <IntDir>$(SolutionDir)build-win\vst3\$(Platform)\$(Configuration)\int\</IntDir>
     <LinkIncremental />
     <TargetExt>.vst3</TargetExt>
-    <IncludePath>E:\Dev\Projects\dsptk\out\install\x64-debug\include;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\Dev\Projects\dsptk\out\install\x64-debug\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>E:\Dev\Projects\dsptk\install\x64-debug\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\Dev\Projects\dsptk\install\x64-debug\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)build-win\vst3\$(Platform)\$(Configuration)\</OutDir>
