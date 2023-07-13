@@ -2,9 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:projects/Comprezz-iOS.xcodeproj">
-   </FileRef>
-   <FileRef
       location = "group:projects/Comprezz-macOS.xcodeproj">
    </FileRef>
 </Workspace>

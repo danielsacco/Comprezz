@@ -23,3 +23,5 @@ Icon?
 .DS_Stor*
 /CompressorUnitTest/x64/Debug
 /x64/Debug
+*.reapeaks
+*.RPP-bak
